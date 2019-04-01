@@ -895,10 +895,10 @@ void Maze::removeFromGoalArea(int cell) {
 }
 
 
-std::list<int> Maze::getGoalArea() const {
+GoalArea_t Maze::getGoalArea() const {
   return goalArea;
 }
 
-void Maze::setGoalArea(std::list<int> &goalArea) {
+void Maze::setGoalArea(GoalArea_t &goalArea) {
   this->goalArea = goalArea;
 }

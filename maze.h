@@ -34,6 +34,8 @@
 #include "floodinfo.h"
 #include "priorityqueue.h"
 
+typedef std::list<int> GoalArea_t;
+
 /// TODO: is the closed maze needed? is it enough to see if the path has unvisited cells?
 
 using namespace std;
@@ -104,8 +106,8 @@ public:
   uint16_t goal() const;
   ///  set the current goal to a new value
   void setGoal(uint16_t goal);
-  std::list<int> getGoalArea() const;
-  void setGoalArea(std::list<int>& goalArea);
+  GoalArea_t getGoalArea() const;
+  void setGoalArea(GoalArea_t & goalArea);
 
   /// return the state of the four walls surrounding a given cell
   uint8_t walls(uint16_t cell) const;
@@ -239,7 +241,7 @@ protected:
   /// stores the cost information from a flood. Allows for 32x32 maze but wastes space
   uint16_t mCost[1024] = {MAX_COST};
   /// The goal is an area so a list of locations is needed. Must have one or more entries
-  std::list<int> goalArea;
+  GoalArea_t goalArea;
   /// The cost of the best path assuming unseen walls are absent
   uint16_t mPathCostOpen = MAX_COST;
   /// The cost of the best path assuming unseen walls are present
