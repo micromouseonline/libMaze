@@ -85,13 +85,16 @@ const Maze *MazeSearcher::realMaze() const {
 
 void MazeSearcher::setRealMaze(const Maze *maze) {
   mRealMaze = maze;
+  mMap->setWidth(maze->width());
+  mMap->resetToEmptyMaze();
+  mMap->setGoal(maze->goal());
 }
 
 int MazeSearcher::runTo(uint16_t target) {
   int steps = 0;
   mMap->flood(target);
   while (mLocation != target) {
-    uint8_t heading = mMap->direction(mLocation);
+    uint8_t heading = mMap->directionToSmallest(mLocation);
     if (heading == INVALID_DIRECTION) {
       steps = -1;
       break;
@@ -130,7 +133,7 @@ int MazeSearcher::searchTo(uint16_t target) {
         break;
       case SEARCH_NORMAL:
         mMap->flood(target);
-        newHeading = mMap->direction(mLocation);
+        newHeading = mMap->directionToSmallest(mLocation);
         break;
       default:
         newHeading = INVALID_DIRECTION;

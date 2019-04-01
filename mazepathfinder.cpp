@@ -26,6 +26,7 @@
 #include "mazepathfinder.h"
 #include <cstdio>
 #include <cstring>
+#include <math.h>
 
 static const char *inPlaceTurnNames[] = {
   "IP45R",
@@ -127,7 +128,7 @@ void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze 
   char *pPath = mBuffer;
   uint16_t distance = 0;
   uint16_t here = start;
-  uint8_t headingHere = maze->direction(here);
+  uint8_t headingHere = maze->directionToSmallest(here);
   mStartCell = start;
   mEndCell = target;
   mStartHeading = headingHere;
@@ -207,15 +208,15 @@ void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze 
     if (command == 'R') {
       headingHere = Maze::rightOf(headingHere);
       mEndHeading = Maze::rightOf(mEndHeading);
-      distance += 127;
+      distance += (180 * 16 / maze->width()) / sqrtf(2);
     }
     if (command == 'L') {
       headingHere = Maze::leftOf(headingHere);
       mEndHeading = Maze::leftOf(mEndHeading);
-      distance += 127;
+      distance += (180 * 16 / maze->width()) / sqrtf(2);;
     }
     if (command == 'F') {
-      distance += 180;
+      distance += (180 * 16 / maze->width()) ;
     }
     *pPath++ = command;
     mCellCount++;

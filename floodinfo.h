@@ -36,54 +36,26 @@
 
 class FloodInfo {
 public:
-  uint16_t cost {};
-  uint16_t cell {};
-  uint8_t runLength {};
-  uint8_t entryDir {};
-  uint8_t entryWall {};
+  uint16_t cost  = 0;
+  uint16_t cell = 0;
+  uint8_t runLength = 0;
+  uint8_t entryDir = 0;
+  uint8_t entryWall = 0;
 
-  FloodInfo() :
-    cost(0),
-    cell(0),
-    runLength(),
-    entryDir(0),
-    entryWall(0) {
-    //
-  }
 
-  explicit FloodInfo(uint16_t _cell)  :
-    cost(0),
-    cell(_cell),
-    runLength(),
-    entryDir(0) {
-    //
-  }
+  FloodInfo() = default;
 
-  FloodInfo(uint16_t _cost, uint16_t _cell, uint8_t _length) :
-    cost(_cost),
-    cell(_cell),
-    runLength(_length) {
-    //
-  }
 
-  FloodInfo(uint16_t _cost, uint16_t _cell, uint8_t _length, uint8_t inDir) :
-    cost(_cost),
-    cell(_cell),
-    runLength(_length),
-    entryDir(inDir) {
-    //
-  }
-
-  FloodInfo(uint16_t _cost, uint16_t _cell, uint8_t _length, uint8_t inDir, uint8_t inWall) :
+  FloodInfo(uint16_t _cost, uint16_t _cell, uint8_t _length, uint8_t inDir, uint8_t inWall = 0) :
     cost(_cost),
     cell(_cell),
     runLength(_length),
     entryDir(inDir),
     entryWall(inWall) {
-    //
+    // no action needed
   }
 
-  inline bool operator==(FloodInfo a) {
+  inline bool operator==(FloodInfo a) const  {
     if (a.runLength == runLength
         && a.cell == cell
         && a.cost == cost
@@ -94,27 +66,27 @@ public:
     }
   }
 
-  inline bool operator!=(FloodInfo &rhs) {
+  inline bool operator!=(FloodInfo &rhs) const {
     return !(*this == rhs);
   }
 
-  inline bool operator>(FloodInfo a) {
+  inline bool operator>(FloodInfo a)  const {
     return cost > a.cost;
   }
 
-  inline bool operator<(FloodInfo a) {
+  inline bool operator<(FloodInfo a)  const {
     return cost < a.cost;
   }
 
-  inline bool operator>=(FloodInfo a) {
+  inline bool operator>=(FloodInfo a) const {
     return cost >= a.cost;
   }
 
-  inline bool operator<=(FloodInfo a) {
+  inline bool operator<=(FloodInfo a) const {
     return cost <= a.cost;
   }
 
-  inline bool isNull() {
+  inline bool isNull() const {
     return (runLength == 0 && cell == 0 && cost == 0);
   }
 };
