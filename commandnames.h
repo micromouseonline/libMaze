@@ -34,7 +34,7 @@ enum {
 };
 
 #define CMD_TURN    (0b10000000)
-#define INPLACE     (CMD_TURN +  0)
+#define INPLACE     (0b10000000)
 #define IP45R       (INPLACE  +  0)
 #define IP45L       (INPLACE  +  1)
 #define IP90R       (INPLACE  +  2)
@@ -44,7 +44,7 @@ enum {
 #define IP180R      (INPLACE  +  6)
 #define IP180L      (INPLACE  +  7)
 
-#define SMOOTH      (CMD_TURN +  8)
+#define SMOOTH      (0b10100000)
 #define SS90FR      (SMOOTH   +  0)
 #define SS90FL      (SMOOTH   +  1)
 #define SS180R      (SMOOTH   +  2)
