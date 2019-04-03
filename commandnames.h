@@ -5,6 +5,88 @@
  * See docs/command-names.md for a description of these values
  */
 
+typedef uint8_t MoveCommand;
+
+enum {
+  CMD_TYPE_ORTHO,
+  CMD_TYPE_DIAG,
+  CMD_TYPE_INPLACE,
+  CMD_TYPE_SMOOTH,
+  CMD_TYPE_MESSAGE,
+  CMD_TYPE_UNKNOWN = -1
+};
+
+#define MOVE_TYPE_ORTHO   0b00000000
+#define MOVE_TYPE_DIAG    0b01000000
+#define MOVE_TYPE_TURN    0b10000000
+#define MOVE_TYPE_MSSG    0b11000000
+
+#define TURN_TYPE_INPLACE 0b00000000
+#define TURN_TYPE_SMOOTH  0b00100000
+
+#define MOVE_TYPE_MASK    0b11000000
+#define MOVE_LENGTH_MASK  0b00111111
+#define TURN_TYPE_MASK    0b00100000
+#define TURN_INDEX_MASK   0b00011111
+#define TURN_DIR_MASK     0b00000001
+
+
+inline int getMoveLength(MoveCommand move) {
+  return move & MOVE_LENGTH_MASK;
+}
+
+inline bool isErrorMssg(MoveCommand move) {
+  return (move & MOVE_TYPE_MASK) == MOVE_TYPE_MSSG;
+}
+
+inline bool isOrtho(MoveCommand move) {
+  return (move & MOVE_TYPE_MASK) == MOVE_TYPE_ORTHO;
+}
+
+inline bool isDiagonal(MoveCommand move) {
+  return (move & MOVE_TYPE_MASK) == MOVE_TYPE_DIAG;
+}
+
+inline bool isTurn(MoveCommand move) {
+  return (move & MOVE_TYPE_MASK) == MOVE_TYPE_TURN;
+}
+
+inline bool isSmoothTurn(MoveCommand move) {
+  return (move & (MOVE_TYPE_MASK | TURN_TYPE_MASK)) == (MOVE_TYPE_TURN + TURN_TYPE_SMOOTH);
+}
+
+inline bool isInPlaceTurn(MoveCommand cmd) {
+  return (cmd & (MOVE_TYPE_MASK | TURN_TYPE_MASK)) == (MOVE_TYPE_TURN + TURN_TYPE_INPLACE);
+}
+
+inline int getTurnIndex(MoveCommand move) {
+  return move & TURN_INDEX_MASK;
+}
+inline int getTurnDirection(MoveCommand cmd) {
+  return cmd & TURN_DIR_MASK;
+}
+
+
+inline int getMoveType(MoveCommand move) {
+  if (isOrtho(move)) {
+    return CMD_TYPE_ORTHO;
+  }
+  if (isDiagonal(move)) {
+    return CMD_TYPE_DIAG;
+  }
+  if (isSmoothTurn(move)) {
+    return CMD_TYPE_SMOOTH;
+  }
+  if (isInPlaceTurn(move)) {
+    return CMD_TYPE_INPLACE;
+  }
+  if (isErrorMssg(move)) {
+    return CMD_TYPE_MESSAGE;
+  }
+  return CMD_TYPE_UNKNOWN;
+}
+
+
 #define CMD_END        (0x00)
 #define CMD_STOP       (0xC0)
 #define CMD_BEGIN      (0xC1)
