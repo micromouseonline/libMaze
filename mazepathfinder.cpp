@@ -282,15 +282,15 @@ void PathFinder::listCommands(uint8_t *commands) {
       done = 1;
     } else if (command == CMD_BEGIN) {
       printf("%s, ", "CMD_BEGIN");
-    } else if (command <= FWD31) {
-      printf("FWD%d, ", command - FWD0);
-    } else if (command <= DIA31) {
-      printf("DIA%d, ", command - DIA0);
+    } else if (isOrtho(command)) {
+      printf("FWD%d, ", getMoveLength(command));
+    } else if (isDiagonal(command)) {
+      printf("DIA%d, ", getMoveLength(command));
     } else if (command <= IP180L) {
       printf("%s, ", inPlaceTurnNames[getTurnIndex(command)]);
     } else if (command <= SS90EL) {
       printf("%s, ", smoothTurnNames[getTurnIndex(command)]);
-    } else if (command >= 0xF0) {
+    } else if (isErrorMssg(command)) {
       printf("CMD_ERROR_%02d, ", command - 0xF0);
     } else {
       printf("OTHER - %02x\n", command);
