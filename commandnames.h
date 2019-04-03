@@ -119,36 +119,34 @@ enum {
   DIA48, DIA49, DIA50, DIA51, DIA52, DIA53, DIA54, DIA55,
   DIA56, DIA57, DIA58, DIA59, DIA60, DIA61, DIA62, DIA63,
 
+  INPLACE  = 0b10000000,
+  IP45R  = INPLACE + 0,
+  IP45L  = INPLACE + 1,
+  IP90R  = INPLACE + 2,
+  IP90L  = INPLACE + 3,
+  IP135R  = INPLACE + 4,
+  IP135L  = INPLACE + 5,
+  IP180R  = INPLACE + 6,
+  IP180L  = INPLACE + 7,
+
+  SMOOTH = 0b10100000,
+  SS90FR = SMOOTH + 0,
+  SS90FL = SMOOTH + 1,
+  SS180R = SMOOTH + 2,
+  SS180L = SMOOTH + 3,
+  SD45R = SMOOTH + 4,
+  SD45L = SMOOTH + 5,
+  SD135R = SMOOTH + 6,
+  SD135L = SMOOTH + 7,
+  DS45R = SMOOTH + 8,
+  DS45L = SMOOTH + 9,
+  DS135R = SMOOTH + 10,
+  DS135L = SMOOTH + 11,
+  DD90R = SMOOTH + 12,
+  DD90L = SMOOTH + 13,
+  SS90ER = SMOOTH + 14,
+  SS90EL = SMOOTH + 15,
 };
-
-#define CMD_TURN    (0b10000000)
-#define INPLACE     (0b10000000)
-#define IP45R       (INPLACE  +  0)
-#define IP45L       (INPLACE  +  1)
-#define IP90R       (INPLACE  +  2)
-#define IP90L       (INPLACE  +  3)
-#define IP135R      (INPLACE  +  4)
-#define IP135L      (INPLACE  +  5)
-#define IP180R      (INPLACE  +  6)
-#define IP180L      (INPLACE  +  7)
-
-#define SMOOTH      (0b10100000)
-#define SS90FR      (SMOOTH   +  0)
-#define SS90FL      (SMOOTH   +  1)
-#define SS180R      (SMOOTH   +  2)
-#define SS180L      (SMOOTH   +  3)
-#define SD45R       (SMOOTH   +  4)
-#define SD45L       (SMOOTH   +  5)
-#define SD135R      (SMOOTH   +  6)
-#define SD135L      (SMOOTH   +  7)
-#define DS45R       (SMOOTH   +  8)
-#define DS45L       (SMOOTH   +  9)
-#define DS135R      (SMOOTH   + 10)
-#define DS135L      (SMOOTH   + 11)
-#define DD90R       (SMOOTH   + 12)
-#define DD90L       (SMOOTH   + 13)
-#define SS90ER      (SMOOTH   + 14)
-#define SS90EL      (SMOOTH   + 15)
 
 
 

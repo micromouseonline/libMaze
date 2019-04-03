@@ -287,9 +287,9 @@ void PathFinder::listCommands(uint8_t *commands) {
     } else if (command <= DIA31) {
       printf("DIA%d, ", command - DIA0);
     } else if (command <= IP180L) {
-      printf("%s, ", inPlaceTurnNames[command - INPLACE]);
+      printf("%s, ", inPlaceTurnNames[getTurnIndex(command)]);
     } else if (command <= SS90EL) {
-      printf("%s, ", smoothTurnNames[command - SMOOTH]);
+      printf("%s, ", smoothTurnNames[getTurnIndex(command)]);
     } else if (command >= 0xF0) {
       printf("CMD_ERROR_%02d, ", command - 0xF0);
     } else {
