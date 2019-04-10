@@ -290,11 +290,14 @@ void MazeFiler::writeWestWalls(Maze *maze, uint16_t y, FILE *fp) {
     } else {
       fputs("| ", fp);
     }
-    if (maze->goalContains(cell)) {
+    if (cell == 0) {
+      fputs("S ", fp);
+    } else if (maze->goalContains(cell)) {
       fputs("G ", fp);
     } else {
       fputs("  ", fp);
     }
+
   }
   uint16_t cell = (maze->width() - 1) * maze->width() + y;
   if (maze->hasExit(cell, EAST)) {
