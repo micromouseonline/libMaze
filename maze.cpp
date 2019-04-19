@@ -677,9 +677,9 @@ uint16_t Maze::runLengthFlood(uint16_t target) {
       uint16_t nextCell = neighbour(info.cell, exitWall);
       uint8_t exitDir = getExitDirection[info.entryWall][exitWall];
       uint8_t newRunLength = info.runLength;
-      auto turnSize = static_cast<uint16_t>(abs(int(info.entryDir) - int(exitDir)));
+      int turnSize = abs(info.entryDir - exitDir);
       if (turnSize > 4) {
-        turnSize = static_cast<uint16_t>(7 - turnSize);
+        turnSize = static_cast<uint16_t>(8 - turnSize);
       }
       uint16_t turnCost = 0;;
       if (info.entryDir == exitDir) {
