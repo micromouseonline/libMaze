@@ -43,7 +43,7 @@ public:
   MazeFiler();
 
   int saveMaze(Maze * maze, char *fileName);
-  int readMaze(Maze * maze, char * fileName);
+  int readMaze(Maze * maze, const char *fileName);
 
   int readBinaryMaze(FILE * fp,  Maze * maze);
   int readTextMaze(FILE * fp, Maze * maze);

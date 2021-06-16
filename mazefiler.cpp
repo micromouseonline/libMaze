@@ -67,7 +67,7 @@ int MazeFiler::saveMaze(Maze * maze, char *fileName) {
   }
 }
 
-int MazeFiler::readMaze(Maze *maze, char *fileName) {
+int MazeFiler::readMaze(Maze *maze, const char *fileName) {
   FILE * fp;
   fp = fopen(fileName, "r");
   if (fp == nullptr) {
