@@ -53,6 +53,9 @@ enum {
 #define WALL_UNSEEN   0x10
 #define ALL_UNSEEN    0xF0
 
+const uint8_t OPEN_MAZE = 0;
+const uint8_t CLOSED_MAZE = 4;
+
 #define WALL_NORTH (WALL_PRESENT << (NORTH))
 #define WALL_EAST  (WALL_PRESENT << (EAST))
 #define WALL_SOUTH (WALL_PRESENT << (SOUTH))

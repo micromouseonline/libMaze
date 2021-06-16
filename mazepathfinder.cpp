@@ -95,8 +95,7 @@ PathFinder::PathFinder() :
   mStartCell(0),
   mEndCell(0),
   mDistance(0),
-  mReachesTarget(false),
-  mStopAtUnvisited(true) {
+  mReachesTarget(false) {
   memset(mBuffer, 0, 1024);
 }
 
@@ -112,16 +111,6 @@ static char pathOptions[16] = {
   'A', 'L', 'F', 'R',
   'R', 'A', 'L', 'F'
 };
-
-void PathFinder::generateSafePath(const uint16_t start, const uint16_t target, Maze *maze) {
-  mStopAtUnvisited = true;
-  generatePath(start, target, maze);
-}
-
-void PathFinder::generateUnsafePath(const uint16_t start, const uint16_t target, Maze *maze) {
-  mStopAtUnvisited = false;
-  generatePath(start, target, maze);
-}
 
 void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze *maze) {
 
@@ -142,14 +131,13 @@ void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze 
   }
   char lastTurn = 'F';
   while (here != target) {
-    if (mStopAtUnvisited && !maze->isVisited(here)) {
+    if (not maze->isVisited(here)) {
       break;
     }
     if (mCellCount >= MAX_PATH_LENGTH) {
       break;
     }
     uint8_t headingLast = headingHere;
-    //    headingHere = maze->direction(here);
     char command = pathOptions[headingLast * 4 + headingHere];
     uint16_t smallest = maze->cost(here);
     uint16_t nextCost;

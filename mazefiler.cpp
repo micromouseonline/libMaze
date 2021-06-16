@@ -204,10 +204,10 @@ int MazeFiler::readTextMaze(FILE *fp, Maze * maze) {
     for (col = 0; col < mazeWidth; col++) {
       uint16_t cell = row + mazeWidth * col;
       if (line1[1 + charsPerCell * col] != ' ') {
-        maze->setWall(cell, NORTH);
+        maze->setWallPresent(cell, NORTH);
       }
       if (line2[charsPerCell * col] != ' ') {
-        maze->setWall(cell, WEST);
+        maze->setWallPresent(cell, WEST);
       }
       if (line2[charsPerCell * col + 2] == 'G') {
         maze->addToGoalArea(col, row);
@@ -272,7 +272,7 @@ int MazeFiler::writeDeclarationMaze(Maze *maze, char * fileName) {
 void MazeFiler::writeNorthWalls(Maze *maze, uint16_t y, FILE *fp) {
   for (uint16_t x = 0; x < maze->width(); x++) {
     uint16_t cell = x * maze->width() + y;
-    if (maze->hasExit(cell, NORTH)) {
+    if (maze->hasOpenExit(cell, NORTH)) {
       fputs("o   ", fp);
     } else {
       fputs("o---", fp);
@@ -285,7 +285,7 @@ void MazeFiler::writeNorthWalls(Maze *maze, uint16_t y, FILE *fp) {
 void MazeFiler::writeWestWalls(Maze *maze, uint16_t y, FILE *fp) {
   for (uint16_t x = 0; x < maze->width(); x++) {
     uint16_t cell = x * maze->width() + y;
-    if (maze->hasExit(cell, WEST)) {
+    if (maze->hasOpenExit(cell, WEST)) {
       fputs("  ", fp);
     } else {
       fputs("| ", fp);
@@ -300,7 +300,7 @@ void MazeFiler::writeWestWalls(Maze *maze, uint16_t y, FILE *fp) {
 
   }
   uint16_t cell = (maze->width() - 1) * maze->width() + y;
-  if (maze->hasExit(cell, EAST)) {
+  if (maze->hasOpenExit(cell, EAST)) {
     fputs(" ", fp);
   } else {
     fputs("|", fp);
@@ -320,7 +320,7 @@ int MazeFiler::writeTextMaze(Maze *maze, char * fileName) {
     }
     for (uint16_t x = 0; x < maze->width(); x++) {
       uint16_t cell = x * maze->width();
-      if (maze->hasExit(cell, SOUTH)) {
+      if (maze->hasOpenExit(cell, SOUTH)) {
         fputs("o   ", fp);
       } else {
         fputs("o---", fp);

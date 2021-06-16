@@ -113,21 +113,11 @@ public:
   uint8_t walls(uint16_t cell) const;
   uint8_t openWalls(uint16_t cell) ;
   uint8_t closedWalls(uint16_t cell) ;
-  /// test whether a wall in a given direction has been observed
-  bool isSeen(uint16_t cell, uint8_t direction);
-  ///  test for the absence of a wall. Don't care if it is seen or not
-  bool hasExit(uint16_t cell, uint8_t direction) const;
 
-  //NOTE: tests for walls are best replaced by tests for exits
-  /// This is because an exit is always an exit but a wall may be virtual
-  ///  test for the presence of a wall. Don't care if it is seen or not
-  bool hasWall(uint16_t cell, uint8_t direction);
+  bool hasOpenExit(uint16_t cell, uint8_t direction) const;
+  bool hasClosedExit(uint16_t cell, uint8_t direction) const;
+  bool hasExit(uint16_t cell, uint8_t direction, uint8_t mazeType) const;
 
-  ///  it is not clear that these two mthods have any actual use
-  ///  test for the definite, observed absence of a wall.
-  bool hasRealExit(uint16_t cell, uint8_t direction);
-  ///  test for the definite, observed presence of a wall.
-  bool hasRealWall(uint16_t cell, uint8_t direction);
 
   /// return the stored direction for the given cell
   uint8_t direction(uint16_t cell);
@@ -136,25 +126,17 @@ public:
 
   /// test to see if  all the walls of a given cell have been seen
   bool isVisited(uint16_t cell);
-  /// set a cell as having all the walls seen
-  void setVisited(uint16_t cell);
-  /// set a cell as having none of the walls seen
-  void clearVisited(uint16_t cell);
+
 
   /// NOT TO BE USED IN SEARCH. Unconditionally set a  wall in a cell and mark as seen.
-  void setWall(uint16_t cell, uint8_t direction);
+  void setWallPresent(uint16_t cell, uint8_t direction);
   /// NOT TO BE USED IN SEARCH. Unconditionally clear a  wall in a cell and mark as seen.
-  void clearWall(uint16_t cell, uint8_t direction);
+  void setWallAbsent(uint16_t cell, uint8_t direction);
 
 
 
   /// USE THIS FOR SEARCH. Update a single cell with wall data (normalised for direction)
   void updateMap(uint16_t cell, uint8_t wallData);
-
-  /// Set all unseen walls as present. This is the closed maze used to test for a solution
-  void setUnknowns();
-  /// Set all unseen walls as present. This is the open maze used for path generation
-  void clearUnknowns();
 
   /// return the cost value for a given cell. Used in flooding and searching
   uint16_t cost(uint16_t cell);
@@ -182,15 +164,15 @@ public:
   /// return the difference between the open and closed cost. Zero when the best route is found.
   int32_t costDifference();
   /// flood the maze for the give goal
-  uint16_t flood(uint16_t target);
+  uint16_t flood(uint16_t target, uint8_t maze_type);
   /// RunLengthFlood is a specific kind of flood used in this mouse
-  uint16_t runLengthFlood(uint16_t target);
+  uint16_t runLengthFlood(uint16_t target, uint8_t maze_type);
   /// manhattanFlood is a the simplest kind of flood used in this mouse
-  uint16_t manhattanFlood(uint16_t target);
+  uint16_t manhattanFlood(uint16_t target, uint8_t maze_type);
   /// weightedFlood assigns a penalty to turns vs straights
-  uint16_t weightedFlood(uint16_t target);
+  uint16_t weightedFlood(uint16_t target, uint8_t maze_type);
   /// directionFlood does not care about costs, only using direction pointers
-  uint16_t directionFlood(uint16_t target);
+  uint16_t directionFlood(uint16_t target, uint8_t maze_type);
 
 
   /// Flood the maze both open and closed and then test the cost difference
@@ -232,7 +214,7 @@ public:
 
 protected:
   /// stores the wall and visited flags. Allows for 32x32 maze but wastes space
-  uint8_t xWalls[1024] = {0xf0};
+  uint8_t m_walls[1024] = {0xf0};
   /// the width of the maze in cells. Assume mazes are always square
   uint16_t mWidth = 32;
   uint8_t mOpenCloseMask = OPEN_MASK;

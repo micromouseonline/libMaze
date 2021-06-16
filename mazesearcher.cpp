@@ -92,7 +92,7 @@ void MazeSearcher::setRealMaze(const Maze *maze) {
 
 int MazeSearcher::runTo(uint16_t target) {
   int steps = 0;
-  mMap->flood(target);
+  mMap->flood(target, OPEN_MAZE);
   while (mLocation != target) {
     uint8_t heading = mMap->directionToSmallest(mLocation);
     if (heading == INVALID_DIRECTION) {
@@ -132,7 +132,7 @@ int MazeSearcher::searchTo(uint16_t target) {
         newHeading = followAlternateWall();
         break;
       case SEARCH_NORMAL:
-        mMap->flood(target);
+        mMap->flood(target, OPEN_MAZE);
         newHeading = mMap->directionToSmallest(mLocation);
         break;
       default:
@@ -159,11 +159,11 @@ int MazeSearcher::searchTo(uint16_t target) {
 
 uint8_t MazeSearcher::followLeftWall() const {
   uint8_t newHeading;
-  if (mMap->hasExit(mLocation, Maze::leftOf(mHeading))) {
+  if (mMap->hasOpenExit(mLocation, Maze::leftOf(mHeading))) {
     newHeading = Maze::leftOf(mHeading);
-  } else if (mMap->hasExit(mLocation, Maze::ahead(mHeading))) {
+  } else if (mMap->hasOpenExit(mLocation, Maze::ahead(mHeading))) {
     newHeading = Maze::ahead(mHeading);
-  } else if (mMap->hasExit(mLocation, Maze::rightOf(mHeading))) {
+  } else if (mMap->hasOpenExit(mLocation, Maze::rightOf(mHeading))) {
     newHeading = Maze::rightOf(mHeading);
   } else {
     newHeading = Maze::behind(mHeading);
@@ -173,11 +173,11 @@ uint8_t MazeSearcher::followLeftWall() const {
 
 uint8_t MazeSearcher::followRightWall() const {
   uint8_t newHeading;
-  if (mMap->hasExit(mLocation, Maze::rightOf(mHeading))) {
+  if (mMap->hasOpenExit(mLocation, Maze::rightOf(mHeading))) {
     newHeading = Maze::rightOf(mHeading);
-  } else if (mMap->hasExit(mLocation, Maze::ahead(mHeading))) {
+  } else if (mMap->hasOpenExit(mLocation, Maze::ahead(mHeading))) {
     newHeading = Maze::ahead(mHeading);
-  } else if (mMap->hasExit(mLocation, Maze::leftOf(mHeading))) {
+  } else if (mMap->hasOpenExit(mLocation, Maze::leftOf(mHeading))) {
     newHeading = Maze::leftOf(mHeading);
   } else {
     newHeading = Maze::behind(mHeading);

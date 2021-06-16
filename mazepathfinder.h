@@ -106,35 +106,42 @@ class PathFinder {
 public:
 
   PathFinder();
-  ~PathFinder();
-  char * path();
-  ///  Create a simple pathstring representing the route from start to finsh in the maze
-  void generateSafePath(uint16_t start,  uint16_t finish, Maze *maze);
 
-  ///  Create a simple pathstring representing the route from start to finsh in the maze
-  /// but do not stop at unvisited cells
-  void generateUnsafePath(uint16_t start,  uint16_t finish, Maze *maze);
+  ~PathFinder();
+
+  char *path();
+
   /// this is not well suited here but it makes migration easier
-  void listCommands(uint8_t * commands);
+  void listCommands(uint8_t *commands);
 
 
   /// return the number of cells traversed by the path
   uint16_t cellCount();
-  /// return a maesure of the distance (in mm) covered by the path
+
+  /// return a measure of the distance (in mm) covered by the path
   uint16_t distance();
+
   /// the heading recorded in the maze at the start cell.
   uint8_t startHeading() const;
+
   /// the heading recorded in the maze at the finish cell.
   uint8_t endHeading() const;
+
   /// The cell where the path starts (in case the caller cannot remember?)
   uint16_t startCell() const;
+
   /// The cell where the path finishes. Not necessarily the requested finish cell.
   uint16_t endCell() const;
+
   /// The path may not reach the target and so more exploring will be needed
   bool reachesTarget() const;
+
   /// Reverse the path string to allow flooding from location to target
   void reversePath();
-  void reversePath(char * s);
+
+  void reversePath(char *s);
+
+  void generatePath(const uint16_t start, const uint16_t target, Maze *maze);
 
 private:
   char mBuffer[MAX_PATH_LENGTH + 2];
@@ -145,10 +152,7 @@ private:
   uint16_t mEndCell;
   uint16_t mDistance;
   bool mReachesTarget;
-  bool mStopAtUnvisited;
-  // the basic path generator can only be called via one of the methods that determine
-  // whether or not to create a safe or unsafe path
-  void generatePath(const uint16_t start, const uint16_t finish, Maze *maze);
+
 };
 
 
