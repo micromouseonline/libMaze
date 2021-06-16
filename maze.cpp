@@ -789,10 +789,6 @@ void Maze::setWidth(uint16_t mWidth) {
   //  resetToEmptyMaze();
 }
 
-uint8_t Maze::getXWalls(int cell) const {
-  return m_walls[cell];
-}
-
 void Maze::clearGoalArea() {
   goalArea.clear();
 }

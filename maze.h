@@ -199,8 +199,6 @@ public:
   uint16_t getCornerWeight() const;
   void setCornerWeight(uint16_t cornerWeight);
 
-  uint8_t getXWalls(int cell) const;
-
   void setWidth(uint16_t mWidth);
   void clearGoalArea();
   void addToGoalArea(int cell);
@@ -217,7 +215,6 @@ protected:
   uint8_t m_walls[1024] = {0xf0};
   /// the width of the maze in cells. Assume mazes are always square
   uint16_t mWidth = 32;
-  uint8_t mOpenCloseMask = OPEN_MASK;
   /// stores the least costly direction. Allows for 32x32 maze but wastes space
   uint8_t mDirection[1024] = {NORTH};
   /// stores the cost information from a flood. Allows for 32x32 maze but wastes space
@@ -237,7 +234,7 @@ protected:
   Maze() = default;
   /// used to set up the queue before running the more complex floods
   void seedQueue(PriorityQueue<FloodInfo> &queue, uint16_t goal, uint16_t cost);
-  /// set all the cell costs to their maxumum value, except the target
+  /// set all the cell costs to their maximum value, except the target
   void initialiseFloodCosts(uint16_t target);
   /// NOT TO BE USED IN SEARCH. Update a single cell from stored map data.
   void copyCellFromFileData(uint16_t cell, uint8_t wallData);

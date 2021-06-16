@@ -50,8 +50,6 @@ enum {
 };
 
 #define WALL_PRESENT  0x01
-#define WALL_UNSEEN   0x10
-#define ALL_UNSEEN    0xF0
 
 const uint8_t OPEN_MAZE = 0;
 const uint8_t CLOSED_MAZE = 4;
@@ -60,13 +58,5 @@ const uint8_t CLOSED_MAZE = 4;
 #define WALL_EAST  (WALL_PRESENT << (EAST))
 #define WALL_SOUTH (WALL_PRESENT << (SOUTH))
 #define WALL_WEST  (WALL_PRESENT << (WEST))
-
-#define UNSEEN_NORTH (WALL_UNSEEN << (NORTH))
-#define UNSEEN_EAST  (WALL_UNSEEN << (EAST))
-#define UNSEEN_SOUTH (WALL_UNSEEN << (SOUTH))
-#define UNSEEN_WEST  (WALL_UNSEEN << (WEST))
-
-#define CLOSED_MASK  0x11
-#define OPEN_MASK    0x01
 
 #endif //MAZE_MAZECONSTANTS_H
