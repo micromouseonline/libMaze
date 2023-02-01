@@ -24,10 +24,9 @@
  *
  **************************************************************************/
 
-
 #include "compiler.h"
-#include "commandnames.h"
 #include <cassert>
+#include "commandnames.h"
 
 typedef enum {
   PathInit,
@@ -46,14 +45,13 @@ typedef enum {
   PathFinish
 } pathgen_state_t;
 
-
 void makeDiagonalCommands(const char *src, const uint16_t maxLength, uint8_t *commands) {
   int runLength = 0;
   int p = 0;
   pathgen_state_t state = PathInit;
   assert(maxLength > 2);
   while (state != PathFinish) {
-    if (runLength > 31) { // MAGIC: maximum for hald-size maze
+    if (runLength > 31) {  // MAGIC: maximum for hald-size maze
       commands[0] = CMD_ERROR;
       commands[1] = CMD_END;
       break;
@@ -318,11 +316,11 @@ void makeDiagonalCommands(const char *src, const uint16_t maxLength, uint8_t *co
  * exploring but where it is not felt safe to use diagonals
  */
 void makeSmoothCommands(const char *src, const uint16_t maxLength, uint8_t *commands) {
-  int runLength = 0; // a counter for the number of cells to be crossed
+  int runLength = 0;  // a counter for the number of cells to be crossed
   int p = 0;
   pathgen_state_t state = PathInit;
   while (state != PathFinish) {
-    if (runLength >= 31) { // MAGIC: maximum for hald-size maze
+    if (runLength >= 31) {  // MAGIC: maximum for hald-size maze
       commands[p++] = CMD_ERROR;
       commands[p] = CMD_END;
       break;
@@ -478,7 +476,7 @@ void makeInPlaceCommands(const char *src, const uint16_t maxLength, uint8_t *com
       case 'F':
         cmd++;
         runLength++;
-        if (runLength >= 31) { // MAGIC: maximum for hald-size maze
+        if (runLength >= 31) {  // MAGIC: maximum for hald-size maze
           commands[p++] = CMD_ERROR;
           commands[p] = CMD_END;
           finished = true;

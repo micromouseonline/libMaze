@@ -1,71 +1,59 @@
 /************************************************************************
-*
-* Copyright (C) 2017 by Peter Harrison. www.micromouseonline.com
-*
-* Permission is hereby granted, free of charge, to any person obtaining a
-* copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without l> imitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be included
-* in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-************************************************************************/
+ *
+ * Copyright (C) 2017 by Peter Harrison. www.micromouseonline.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without l> imitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ ************************************************************************/
 #include <cassert>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
-#include "mazeconstants.h"
 #include "floodinfo.h"
-#include "priorityqueue.h"
 #include "maze.h"
+#include "mazeconstants.h"
+#include "priorityqueue.h"
 
 /*
  * The runlength flood calculates costs based on the length of straights
  */
 const uint16_t orthoCostTable[] =
-  // low speed costs ( vturn = 1.5m/s/s, acc = 13000 mm/s/s)
-{
-  0, 98, 75, 63, 55, 50, 46, 43,
-  40, 38, 36, 36, 36, 36, 36, 36,
-  36, 36, 36, 36, 36, 36, 36, 36,
-  36, 36, 36, 36, 36, 36, 36, 36,
-  36, 36, 36, 36, 36, 36, 36, 36,
-  36, 36, 36, 36, 36, 36, 36, 36,
-  36, 36, 36, 36, 36, 36, 36, 36,
-  36, 36, 36, 36, 36, 36, 36, 36,
+    // low speed costs ( vturn = 1.5m/s/s, acc = 13000 mm/s/s)
+    {
+        0,  98, 75, 63, 55, 50, 46, 43, 40, 38, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
+        36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
+        36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
 };
 
 const uint16_t diagCostTable[] =
-  // low speed costs ( vturn = 1.5m/s/s, acc = 13000 mm/s/s)
-{
-  0, 73, 58, 50, 44, 40, 37, 35,
-  33, 31, 31, 31, 31, 31, 31, 31,
-  31, 31, 31, 31, 31, 31, 31, 31,
-  31, 31, 31, 31, 31, 31, 31, 31,
-  31, 31, 31, 31, 31, 31, 31, 31,
-  31, 31, 31, 31, 31, 31, 31, 31,
-  31, 31, 31, 31, 31, 31, 31, 31,
-  31, 31, 31, 31, 31, 31, 31, 31,
+    // low speed costs ( vturn = 1.5m/s/s, acc = 13000 mm/s/s)
+    {
+        0,  73, 58, 50, 44, 40, 37, 35, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
+        31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
+        31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
 };
-
 
 // high speed costs (vturn = 2000 mm/s, acc = 16667 mm/s/s)
 //{0,56,47,41,37,34,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31};
 
-Maze::Maze(uint16_t width) :
-  mWidth(width) {
+Maze::Maze(uint16_t width) : mWidth(width) {
   resetToEmptyMaze();
 };
 
@@ -81,7 +69,7 @@ void Maze::clearData() {
   for (uint16_t i = 0; i < 1024; i++) {
     mCost[i] = MAX_COST;
     mDirection[i] = NORTH;
-    m_walls[i] = 0xf0; // all unseen exits
+    m_walls[i] = 0xf0;  // all unseen exits
   }
   clearGoalArea();
 }
@@ -116,7 +104,6 @@ void Maze::resetToEmptyMaze() {
  * INSTEAD, USE updateMap()
  */
 void Maze::copyCellFromFileData(uint16_t cell, uint8_t wallData) {
-
   if (wallData & 0x01) {
     setWallPresent(cell, NORTH);
   } else {
@@ -186,7 +173,6 @@ uint8_t Maze::opposite(uint8_t direction) {
 
 uint8_t Maze::differenceBetween(uint8_t oldDirection, uint8_t newDirection) {
   return static_cast<uint8_t>((newDirection - oldDirection) & 0x03);
-
 }
 
 uint16_t Maze::cellNorth(uint16_t cell) {
@@ -251,7 +237,6 @@ uint8_t Maze::walls(uint16_t cell) const {
   return m_walls[cell] & 0x0f;
 }
 
-
 uint8_t Maze::openWalls(uint16_t cell) {
   return (m_walls[cell] >> OPEN_MAZE) & 0x0f;
 }
@@ -259,7 +244,6 @@ uint8_t Maze::openWalls(uint16_t cell) {
 uint8_t Maze::closedWalls(uint16_t cell) {
   return (m_walls[cell] >> CLOSED_MAZE) & 0x0f;
 }
-
 
 bool Maze::hasExit(uint16_t cell, uint8_t direction, uint8_t mazeType) const {
   return (m_walls[cell] & (1 << (direction + mazeType))) == 0;
@@ -273,7 +257,6 @@ bool Maze::hasClosedExit(uint16_t cell, uint8_t direction) const {
   return hasExit(cell, direction, CLOSED_MAZE);
 }
 
-
 uint8_t Maze::direction(uint16_t cell) {
   return mDirection[cell];
 }
@@ -285,8 +268,6 @@ void Maze::setDirection(uint16_t cell, uint8_t direction) {
 bool Maze::isVisited(uint16_t cell) {
   return (openWalls(cell) == closedWalls(cell));
 }
-
-
 
 /*
  * unconditionally adds a wall in the map.
@@ -313,7 +294,7 @@ void Maze::setWallPresent(uint16_t cell, uint8_t direction) {
       m_walls[cell] |= (1 << WEST);
       m_walls[nextCell] |= (1 << EAST);
       break;
-    default:; // do nothing - although this is an error
+    default:;  // do nothing - although this is an error
       break;
   }
 }
@@ -344,7 +325,7 @@ void Maze::setWallAbsent(uint16_t cell, uint8_t direction) {
       m_walls[cell] &= ~(1 << (WEST + CLOSED_MAZE));
       m_walls[nextCell] &= ~(1 << (EAST + CLOSED_MAZE));
       break;
-    default:; // do nothing - although this is an error
+    default:;  // do nothing - although this is an error
       break;
   }
 }
@@ -481,7 +462,7 @@ void Maze::updateDirections() {
   }
 }
 
-bool Maze::testForSolution() { // takes less than 3ms
+bool Maze::testForSolution() {  // takes less than 3ms
 
   mPathCostClosed = flood(goal(), CLOSED_MAZE);
 
@@ -489,7 +470,6 @@ bool Maze::testForSolution() { // takes less than 3ms
   mIsSolved = mPathCostClosed == mPathCostOpen;
   return mIsSolved;
 };
-
 
 /*
  *  The default goal while searching a classic maze
@@ -577,10 +557,25 @@ uint16_t Maze::flood(uint16_t target, uint8_t maze_type) {
 }
 
 static uint8_t getExitDirection[4][4] = {
-  {255, 3,   4,   5,},
-  {7,   255, 5,   6,},
-  {0,   1,   255, 7,},
-  {1,   2,   3,   255},
+    {
+        255,
+        3,
+        4,
+        5,
+    },
+    {
+        7,
+        255,
+        5,
+        6,
+    },
+    {
+        0,
+        1,
+        255,
+        7,
+    },
+    {1, 2, 3, 255},
 };
 
 /*
@@ -596,8 +591,7 @@ uint16_t Maze::runLengthFlood(uint16_t target, uint8_t maze_type) {
   seedQueue(queue, target, orthoCostTable[1]);
   // each (accessible) cell will be processed only once
   while ((queue.size() > 0)) {
-    FloodInfo info = queue.front();
-    queue.pop();
+    FloodInfo info = queue.head();
     /*
      * test each wall for an exit. Skip any blocked, or already used exits
      */
@@ -615,12 +609,13 @@ uint16_t Maze::runLengthFlood(uint16_t target, uint8_t maze_type) {
       if (turnSize > 4) {
         turnSize = static_cast<uint16_t>(8 - turnSize);
       }
-      uint16_t turnCost = 0;;
+      uint16_t turnCost = 0;
+      ;
       if (info.entryDir == exitDir) {
         newRunLength++;
       } else {
         newRunLength = 1;
-        turnCost = static_cast<uint16_t>(turnSize * 22); // MAGIC: empirical value for best-looking routes
+        turnCost = static_cast<uint16_t>(turnSize * 22);  // MAGIC: empirical value for best-looking routes
       }
       uint16_t newCost = ((exitDir & 1) == 0) ? orthoCostTable[newRunLength] : diagCostTable[newRunLength];
       newCost += turnCost + mCost[info.cell];
@@ -630,7 +625,7 @@ uint16_t Maze::runLengthFlood(uint16_t target, uint8_t maze_type) {
       }
     }
   }
-  //NOTE: this need not be done here - only when the directions are acually needed
+  // NOTE: this need not be done here - only when the directions are acually needed
   updateDirections();
   return mCost[0];
 }
@@ -640,8 +635,7 @@ uint16_t Maze::manhattanFlood(uint16_t target, uint8_t maze_type) {
   initialiseFloodCosts(target);
   queue.push(target);
   while (queue.size() > 0) {
-    uint16_t cell = queue.front();
-    queue.pop();
+    uint16_t cell = queue.head();
     uint16_t newCost = mCost[cell];
     newCost++;
     for (uint8_t direction = 0; direction < 4; direction++) {
@@ -716,8 +710,7 @@ uint16_t Maze::weightedFlood(uint16_t target, uint8_t maze_type) {
   queue.push(target);
   while (queue.size() > 0) {
     uint16_t newCost;
-    auto here = static_cast<uint16_t>(queue.front());
-    queue.pop();
+    auto here = static_cast<uint16_t>(queue.head());
     uint16_t costHere = mCost[here];
     uint8_t thisDirection = mDirection[here];
     for (uint8_t exitDirection = 0; exitDirection < 4; exitDirection++) {
@@ -750,8 +743,7 @@ uint16_t Maze::directionFlood(uint16_t target, uint8_t maze_type) {
   initialiseFloodCosts(target);
   queue.push(target);
   while (queue.size() > 0) {
-    auto here = static_cast<uint16_t>(queue.front());
-    queue.pop();
+    auto here = static_cast<uint16_t>(queue.head());
     auto nextCost = static_cast<uint16_t>(mCost[here] + 1);
     for (uint8_t exit = 0; exit < 4; exit++) {
       if (hasExit(here, exit, maze_type)) {
@@ -810,7 +802,6 @@ bool Maze::goalContains(int x, int y) const {
   return end(goalArea) != find(begin(goalArea), end(goalArea), cell);
 }
 
-
 int Maze::goalAreaSize() const {
   return goalArea.size();
 }
@@ -823,7 +814,6 @@ void Maze::removeFromGoalArea(int cell) {
   goalArea.remove(cell);
 }
 
-
 GoalArea_t Maze::getGoalArea() const {
   return goalArea;
 }
@@ -831,4 +821,3 @@ GoalArea_t Maze::getGoalArea() const {
 void Maze::setGoalArea(GoalArea_t &goalArea) {
   this->goalArea = goalArea;
 }
-

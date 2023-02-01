@@ -24,12 +24,10 @@
  *
  **************************************************************************/
 
-
 #ifndef MICROMOUSE_MAZE_COMPILER_H
 #define MICROMOUSE_MAZE_COMPILER_H
 
 #include <cstdint>
-
 
 /// Convert the path to a set of commands using only 90 degree in place turns
 void makeInPlaceCommands(const char *src, const uint16_t maxLength, uint8_t *commands);
@@ -38,4 +36,4 @@ void makeDiagonalCommands(const char *src, const uint16_t maxLength, uint8_t *co
 /// Convert the path to a set of commands using the full range of turns and moves
 void makeSmoothCommands(const char *src, const uint16_t maxLength, uint8_t *commands);
 
-#endif //MICROMOUSE_MAZE_COMPILER_H
+#endif  // MICROMOUSE_MAZE_COMPILER_H

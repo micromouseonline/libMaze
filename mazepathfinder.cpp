@@ -1,64 +1,39 @@
 /************************************************************************
-*
-* Copyright (C) 2017 by Peter Harrison. www.micromouseonline.com
-*
-* Permission is hereby granted, free of charge, to any person obtaining a
-* copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without l> imitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be included
-* in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-************************************************************************/
+ *
+ * Copyright (C) 2017 by Peter Harrison. www.micromouseonline.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without l> imitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ ************************************************************************/
 
 #include "mazepathfinder.h"
+#include <math.h>
 #include <cstdio>
 #include <cstring>
-#include <math.h>
 
 static const char *inPlaceTurnNames[] = {
-  "IP45R",
-  "IP45L",
-  "IP90R",
-  "IP90L",
-  "IP135R",
-  "IP135L",
-  "IP180R",
-  "IP180L",
+    "IP45R", "IP45L", "IP90R", "IP90L", "IP135R", "IP135L", "IP180R", "IP180L",
 };
 
-static const char *smoothTurnNames[] = {
-  "SS90SR",
-  "SS90SL",
-  "SS90FR",
-  "SS90FL",
-  "SS180R",
-  "SS180L",
-  "SD45R",
-  "SD45L",
-  "SD135R",
-  "SD135L",
-  "DS45R",
-  "DS45L",
-  "DS135R",
-  "DS135L",
-  "DD90R",
-  "DD90L",
-  "SS90ER",
-  "SS90EL"
-};
+static const char *smoothTurnNames[] = {"SS90SR", "SS90SL", "SS90FR", "SS90FL", "SS180R", "SS180L", "SD45R", "SD45L",  "SD135R",
+                                        "SD135L", "DS45R",  "DS45L",  "DS135R", "DS135L", "DD90R",  "DD90L", "SS90ER", "SS90EL"};
 
 typedef enum {
   PathInit,
@@ -87,15 +62,14 @@ typedef enum {
  * No attempt is made to verify that a valid path exists
  */
 
-
-PathFinder::PathFinder() :
-  mStartHeading(INVALID_DIRECTION),
-  mEndHeading(INVALID_DIRECTION),
-  mCellCount(0),
-  mStartCell(0),
-  mEndCell(0),
-  mDistance(0),
-  mReachesTarget(false) {
+PathFinder::PathFinder()
+    : mStartHeading(INVALID_DIRECTION),
+      mEndHeading(INVALID_DIRECTION),
+      mCellCount(0),
+      mStartCell(0),
+      mEndCell(0),
+      mDistance(0),
+      mReachesTarget(false) {
   memset(mBuffer, 0, 1024);
 }
 
@@ -105,15 +79,9 @@ char *PathFinder::path() {
   return mBuffer;
 }
 
-static char pathOptions[16] = {
-  'F', 'R', 'A', 'L',
-  'L', 'F', 'R', 'A',
-  'A', 'L', 'F', 'R',
-  'R', 'A', 'L', 'F'
-};
+static char pathOptions[16] = {'F', 'R', 'A', 'L', 'L', 'F', 'R', 'A', 'A', 'L', 'F', 'R', 'R', 'A', 'L', 'F'};
 
 void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze *maze) {
-
   char *pPath = mBuffer;
   uint16_t distance = 0;
   uint16_t here = start;
@@ -201,10 +169,11 @@ void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze 
     if (command == 'L') {
       headingHere = Maze::leftOf(headingHere);
       mEndHeading = Maze::leftOf(mEndHeading);
-      distance += (180 * 16 / maze->width()) / sqrtf(2);;
+      distance += (180 * 16 / maze->width()) / sqrtf(2);
+      ;
     }
     if (command == 'F') {
-      distance += (180 * 16 / maze->width()) ;
+      distance += (180 * 16 / maze->width());
     }
     *pPath++ = command;
     mCellCount++;
@@ -291,7 +260,6 @@ uint16_t PathFinder::distance() {
 }
 
 void PathFinder::reversePath() {
-
 }
 
 void PathFinder::reversePath(char *s) {

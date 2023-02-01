@@ -1,37 +1,37 @@
 /************************************************************************
-*
-* Copyright (C) 2017 by Peter Harrison. www.micromouseonline.com
-*
-* Permission is hereby granted, free of charge, to any person obtaining a
-* copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without l> imitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be included
-* in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-************************************************************************/
+ *
+ * Copyright (C) 2017 by Peter Harrison. www.micromouseonline.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without l> imitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ ************************************************************************/
 
 #ifndef _maze_h
 #define _maze_h
 
-#include <cstdint>
-#include <vector>
-#include <list>
 #include <algorithm>
-#include "mazeconstants.h"
+#include <cstdint>
+#include <list>
+#include <vector>
 #include "floodinfo.h"
+#include "mazeconstants.h"
 #include "priorityqueue.h"
 
 typedef std::list<int> GoalArea_t;
@@ -40,40 +40,28 @@ typedef std::list<int> GoalArea_t;
 
 using namespace std;
 class Maze {
-
-public:
+ public:
   explicit Maze(uint16_t width);
-  enum FloodType {
-    MANHATTAN_FLOOD,
-    WEIGHTED_FLOOD,
-    RUNLENGTH_FLOOD,
-    DIRECTION_FLOOD
-  };
+  enum FloodType { MANHATTAN_FLOOD, WEIGHTED_FLOOD, RUNLENGTH_FLOOD, DIRECTION_FLOOD };
 
   /// the maze is assumed to be square
-  uint16_t width() const; ///
-  uint16_t numCells(); ///
+  uint16_t width() const;  ///
+  uint16_t numCells();     ///
 
   ///  reset the wall, cost and direction data to defaults
   void clearData();
   /// clear the data and then set all the walls that exist in an empty maze
-  void resetToEmptyMaze(); ///
+  void resetToEmptyMaze();  ///
 
   /// Clear the costs and directions and then copy the walls from an array
   void copyMazeFromFileData(const uint8_t *wallData, uint16_t cellCount);
 
   /// return the column number of  given cell
-  inline uint16_t col(uint16_t cell) {
-    return cell / mWidth;
-  }
+  inline uint16_t col(uint16_t cell) { return cell / mWidth; }
   /// return the roww number of a given cell
-  inline uint16_t row(uint16_t cell) {
-    return cell % mWidth;
-  }
+  inline uint16_t row(uint16_t cell) { return cell % mWidth; }
 
-  inline uint16_t cellID(int x, int y) const {
-    return mWidth * x + y;
-  }
+  inline uint16_t cellID(int x, int y) const { return mWidth * x + y; }
 
   /// return the address of the cell ahead from this cardinal direction
   static uint8_t ahead(uint8_t direction);
@@ -107,17 +95,16 @@ public:
   ///  set the current goal to a new value
   void setGoal(uint16_t goal);
   GoalArea_t getGoalArea() const;
-  void setGoalArea(GoalArea_t & goalArea);
+  void setGoalArea(GoalArea_t &goalArea);
 
   /// return the state of the four walls surrounding a given cell
   uint8_t walls(uint16_t cell) const;
-  uint8_t openWalls(uint16_t cell) ;
-  uint8_t closedWalls(uint16_t cell) ;
+  uint8_t openWalls(uint16_t cell);
+  uint8_t closedWalls(uint16_t cell);
 
   bool hasOpenExit(uint16_t cell, uint8_t direction) const;
   bool hasClosedExit(uint16_t cell, uint8_t direction) const;
   bool hasExit(uint16_t cell, uint8_t direction, uint8_t mazeType) const;
-
 
   /// return the stored direction for the given cell
   uint8_t direction(uint16_t cell);
@@ -127,13 +114,10 @@ public:
   /// test to see if  all the walls of a given cell have been seen
   bool isVisited(uint16_t cell);
 
-
   /// NOT TO BE USED IN SEARCH. Unconditionally set a  wall in a cell and mark as seen.
   void setWallPresent(uint16_t cell, uint8_t direction);
   /// NOT TO BE USED IN SEARCH. Unconditionally clear a  wall in a cell and mark as seen.
   void setWallAbsent(uint16_t cell, uint8_t direction);
-
-
 
   /// USE THIS FOR SEARCH. Update a single cell with wall data (normalised for direction)
   void updateMap(uint16_t cell, uint8_t wallData);
@@ -152,7 +136,7 @@ public:
   uint16_t costWest(uint16_t cell);
 
   /// set the cost in the given cell.
-  void setCost(uint16_t cell, uint16_t cost); ///
+  void setCost(uint16_t cell, uint16_t cost);  ///
 
   /// examine the goal area and move the goal if needed for a better entry speed
   void recalculateGoal();
@@ -173,7 +157,6 @@ public:
   uint16_t weightedFlood(uint16_t target, uint8_t maze_type);
   /// directionFlood does not care about costs, only using direction pointers
   uint16_t directionFlood(uint16_t target, uint8_t maze_type);
-
 
   /// Flood the maze both open and closed and then test the cost difference
   /// leaves the maze with unknowns clear
@@ -210,7 +193,7 @@ public:
   bool goalContains(int x, int y) const;
   int goalAreaSize() const;
 
-protected:
+ protected:
   /// stores the wall and visited flags. Allows for 32x32 maze but wastes space
   uint8_t m_walls[1024] = {0xf0};
   /// the width of the maze in cells. Assume mazes are always square
@@ -238,9 +221,6 @@ protected:
   void initialiseFloodCosts(uint16_t target);
   /// NOT TO BE USED IN SEARCH. Update a single cell from stored map data.
   void copyCellFromFileData(uint16_t cell, uint8_t wallData);
-
-
 };
 
 #endif
-

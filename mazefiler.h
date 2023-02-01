@@ -24,17 +24,15 @@
  *
  **************************************************************************/
 
-
 #ifndef MICROMOUSE_MAZE_MAZEFILER_H
 #define MICROMOUSE_MAZE_MAZEFILER_H
 
-#include "maze.h"
 #include <cstdio>
+#include "maze.h"
 
 class MazeFiler {
-public:
-
-  typedef enum  {
+ public:
+  typedef enum {
     MAZE_SUCCESS = 0,
     MAZE_READ_ERROR,
     MAZE_WRITE_ERROR,
@@ -42,20 +40,19 @@ public:
 
   MazeFiler();
 
-  int saveMaze(Maze * maze, char *fileName);
-  int readMaze(Maze * maze, const char *fileName);
+  int saveMaze(Maze *maze, char *fileName);
+  int readMaze(Maze *maze, const char *fileName);
 
-  int readBinaryMaze(FILE * fp,  Maze * maze);
-  int readTextMaze(FILE * fp, Maze * maze);
+  int readBinaryMaze(FILE *fp, Maze *maze);
+  int readTextMaze(FILE *fp, Maze *maze);
   // COPOUT: reading a c declaration is not easy so it is not here.
   int writeBinaryMaze(Maze *maze, char *fileName);
-  int writeDeclarationMaze(Maze *maze, char * fileName);
-  int writeTextMaze(Maze * maze, char * filename);
+  int writeDeclarationMaze(Maze *maze, char *fileName);
+  int writeTextMaze(Maze *maze, char *filename);
 
-private:
+ private:
   void writeNorthWalls(Maze *maze, uint16_t y, FILE *fp);
   void writeWestWalls(Maze *maze, uint16_t y, FILE *fp);
-
 };
 
-#endif //MICROMOUSE_MAZE_MAZEFILER_H
+#endif  // MICROMOUSE_MAZE_MAZEFILER_H
