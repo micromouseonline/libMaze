@@ -34,6 +34,8 @@ typedef struct {
   const int size;
 } MazeDataSource;
 
+#ifdef ENABLE_MAZE_DATA
+
 extern MazeDataSource mazeList[];
 
 extern int mazeCount;
@@ -150,5 +152,7 @@ extern const uint8_t taiwan2014ef_half[];
 extern const uint8_t taiwan2015ef_half[];
 extern const uint8_t taiwan2016ef_half[];
 extern const uint8_t taiwan2017ef_half[];
+
+#endif  // ENABLE_MAZE_DATA
 
 #endif /* MAZEDATA_H */

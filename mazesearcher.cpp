@@ -87,9 +87,9 @@ void MazeSearcher::setRealMaze(const Maze *maze) {
 
 int MazeSearcher::runTo(uint16_t target) {
   int steps = 0;
-  mMap->flood(target, OPEN_MAZE);
+  mMap->flood(target, CLOSED_MASK);
   while (mLocation != target) {
-    uint8_t heading = mMap->directionToSmallest(mLocation);
+    uint8_t heading = mMap->direction(mLocation);
     if (heading == INVALID_DIRECTION) {
       steps = -1;
       break;
@@ -127,8 +127,8 @@ int MazeSearcher::searchTo(uint16_t target) {
         newHeading = followAlternateWall();
         break;
       case SEARCH_NORMAL:
-        mMap->flood(target, OPEN_MAZE);
-        newHeading = mMap->directionToSmallest(mLocation);
+        mMap->flood(target, OPEN_MASK);
+        newHeading = mMap->direction(mLocation);
         break;
       default:
         newHeading = INVALID_DIRECTION;
@@ -154,11 +154,11 @@ int MazeSearcher::searchTo(uint16_t target) {
 
 uint8_t MazeSearcher::followLeftWall() const {
   uint8_t newHeading;
-  if (mMap->hasOpenExit(mLocation, Maze::leftOf(mHeading))) {
+  if (mMap->hasExit(mLocation, Maze::leftOf(mHeading))) {
     newHeading = Maze::leftOf(mHeading);
-  } else if (mMap->hasOpenExit(mLocation, Maze::ahead(mHeading))) {
+  } else if (mMap->hasExit(mLocation, Maze::ahead(mHeading))) {
     newHeading = Maze::ahead(mHeading);
-  } else if (mMap->hasOpenExit(mLocation, Maze::rightOf(mHeading))) {
+  } else if (mMap->hasExit(mLocation, Maze::rightOf(mHeading))) {
     newHeading = Maze::rightOf(mHeading);
   } else {
     newHeading = Maze::behind(mHeading);
@@ -168,11 +168,11 @@ uint8_t MazeSearcher::followLeftWall() const {
 
 uint8_t MazeSearcher::followRightWall() const {
   uint8_t newHeading;
-  if (mMap->hasOpenExit(mLocation, Maze::rightOf(mHeading))) {
+  if (mMap->hasExit(mLocation, Maze::rightOf(mHeading))) {
     newHeading = Maze::rightOf(mHeading);
-  } else if (mMap->hasOpenExit(mLocation, Maze::ahead(mHeading))) {
+  } else if (mMap->hasExit(mLocation, Maze::ahead(mHeading))) {
     newHeading = Maze::ahead(mHeading);
-  } else if (mMap->hasOpenExit(mLocation, Maze::leftOf(mHeading))) {
+  } else if (mMap->hasExit(mLocation, Maze::leftOf(mHeading))) {
     newHeading = Maze::leftOf(mHeading);
   } else {
     newHeading = Maze::behind(mHeading);

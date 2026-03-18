@@ -1,11 +1,10 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.12)
 
 if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
 project(maze VERSION 18.09.13.2)
-
 
 
 project(maze)
@@ -24,7 +23,7 @@ set(HEADER_FILES
         floodinfo.h
         )
 
-set (SOURCE_FILES
+set(SOURCE_FILES
         maze.cpp
         mazedata.cpp
         mazepathfinder.cpp

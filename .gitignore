@@ -1,0 +1,10 @@
+cmake-build-*/
+Debug/
+Release/
+html/
+build/
+venv/
+.idea
+.cache
+.vscode
+language.settings.xml

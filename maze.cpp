@@ -37,24 +37,21 @@
 const uint16_t orthoCostTable[] =
     // low speed costs ( vturn = 1.5m/s/s, acc = 13000 mm/s/s)
     {
-        0,  98, 75, 63, 55, 50, 46, 43, 40, 38, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
-        36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
-        36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
+        0, 98, 75, 63, 55, 50, 46, 43, 40, 38, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36,
 };
 
 const uint16_t diagCostTable[] =
     // low speed costs ( vturn = 1.5m/s/s, acc = 13000 mm/s/s)
     {
-        0,  73, 58, 50, 44, 40, 37, 35, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
-        31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
-        31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
+        0, 73, 58, 50, 44, 40, 37, 35, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
 };
 
 // high speed costs (vturn = 2000 mm/s, acc = 16667 mm/s/s)
 //{0,56,47,41,37,34,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31};
 
 Maze::Maze(uint16_t width) : mWidth(width) {
-  resetToEmptyMaze();
+  addToGoalArea(DEFAULT_GOAL);
+  //  resetToEmptyMaze();
 };
 
 uint16_t Maze::width() const {
@@ -66,10 +63,10 @@ uint16_t Maze::numCells() {
 }
 
 void Maze::clearData() {
-  for (uint16_t i = 0; i < 1024; i++) {
+  for (uint16_t i = 0; i < numCells(); i++) {
     mCost[i] = MAX_COST;
     mDirection[i] = NORTH;
-    m_walls[i] = 0xf0;  // all unseen exits
+    xWalls[i] = 0xf0;  // all unseen exits
   }
   clearGoalArea();
 }
@@ -77,18 +74,19 @@ void Maze::clearData() {
 void Maze::resetToEmptyMaze() {
   clearData();
   for (uint16_t i = 0; i < width(); i++) {
-    setWallPresent(i, WEST);
-    setWallPresent(static_cast<uint16_t>(width() * (width() - 1) + i), EAST);
-    setWallPresent(i * width(), SOUTH);
-    setWallPresent(static_cast<uint16_t>(width() * i + width() - 1), NORTH);
+    setWall(i, WEST);
+    setWall(static_cast<uint16_t>(width() * (width() - 1) + i), EAST);
+    setWall(i * width(), SOUTH);
+    setWall(static_cast<uint16_t>(width() * i + width() - 1), NORTH);
   }
-  setWallPresent(0, EAST);
-  setWallAbsent(0, NORTH);
-  addToGoalArea(7, 7);
+  setWall(0, EAST);
+  clearWall(0, NORTH);
+  mOpenCloseMask = OPEN_MASK;
   if (mWidth == 16) {
-    addToGoalArea(7, 8);
-    addToGoalArea(8, 7);
-    addToGoalArea(8, 8);
+    addToGoalArea(0x77);
+    addToGoalArea(0x78);
+    addToGoalArea(0x88);
+    addToGoalArea(0x87);
   }
 }
 
@@ -105,24 +103,24 @@ void Maze::resetToEmptyMaze() {
  */
 void Maze::copyCellFromFileData(uint16_t cell, uint8_t wallData) {
   if (wallData & 0x01) {
-    setWallPresent(cell, NORTH);
+    setWall(cell, NORTH);
   } else {
-    setWallAbsent(cell, NORTH);
+    clearWall(cell, NORTH);
   }
   if (wallData & 0x02) {
-    setWallPresent(cell, EAST);
+    setWall(cell, EAST);
   } else {
-    setWallAbsent(cell, EAST);
+    clearWall(cell, EAST);
   }
   if (wallData & 0x04) {
-    setWallPresent(cell, SOUTH);
+    setWall(cell, SOUTH);
   } else {
-    setWallAbsent(cell, SOUTH);
+    clearWall(cell, SOUTH);
   }
   if (wallData & 0x08) {
-    setWallPresent(cell, WEST);
+    setWall(cell, WEST);
   } else {
-    setWallAbsent(cell, WEST);
+    clearWall(cell, WEST);
   }
   if (wallData & 0x80) {
     addToGoalArea(cell);
@@ -136,11 +134,6 @@ void Maze::copyCellFromFileData(uint16_t cell, uint8_t wallData) {
  */
 void Maze::copyMazeFromFileData(const uint8_t *wallData, uint16_t cellCount) {
   clearData();
-  if (cellCount == 1024) {
-    setWidth(32);
-  } else {
-    setWidth(16);
-  }
   //  if (cellCount > numCells()) {
   //    return; // ERROR here
   //  }
@@ -220,41 +213,91 @@ uint16_t Maze::home() {
   return 0;
 }
 
+/***
+ * The 'goal' is always a single cell, even if the goal area contains a list of cells.
+ * That makes it possible for the search to terminate when any of the goal area cells
+ * is reached and still have a single target for flooding and path finding
+ *
+ * NOTE: calling this with the goal area empty is an error and should be handled a
+ * little better than a panic. But, how to do so without introducing a dependency?
+ * @return first item in the goal area list
+ */
 uint16_t Maze::goal() const {
-  if (goalArea.size() > 0) {
-    return goalArea.front();
-  } else {
-    return 0;
-  }
+  return goalArea.front();
 }
 
+/***
+ * Sets a single cell as the only item in the goal area list. Called after a successful
+ * search to the goal area.
+ *
+ * Should be set only once after a search but may be used more than once later if we want
+ * to investigate alternate routes in the unlikely event that there is more than one entry
+ * to the goal area.
+ *
+ * @param goal
+ */
 void Maze::setGoal(uint16_t goal) {
   clearGoalArea();
   goalArea.push_back(goal);
 }
 
+/***
+ * At the start of a contest run, we fill this with a list of cells in the goal region.
+ * It can also be set with a single cell to constrain the search or for practice.
+ * @param goal_area
+ * @param count
+ */
+void Maze::setGoalArea(const int *goal_area, const int count) {
+  clearGoalArea();
+  for (int i = 0; i < count; i++) {
+    goalArea.push_back(goal_area[i]);
+  }
+}
+
 uint8_t Maze::walls(uint16_t cell) const {
-  return m_walls[cell] & 0x0f;
+  uint8_t result = 0;
+  for (int i = 0; i < 4; i++) {
+    if (!hasExit(cell, i)) {
+      result |= (1 << i);
+    }
+  }
+  return result;
 }
 
 uint8_t Maze::openWalls(uint16_t cell) {
-  return (m_walls[cell] >> OPEN_MAZE) & 0x0f;
+  int openCloseMask = mOpenCloseMask;
+  mOpenCloseMask = OPEN_MASK;
+  uint8_t result = 0;
+  for (int i = 0; i < 4; i++) {
+    if (!hasExit(cell, i)) {
+      result |= (1 << i);
+    }
+  }
+  mOpenCloseMask = openCloseMask;
+  return result;
 }
 
 uint8_t Maze::closedWalls(uint16_t cell) {
-  return (m_walls[cell] >> CLOSED_MAZE) & 0x0f;
+  int openCloseMask = mOpenCloseMask;
+  mOpenCloseMask = CLOSED_MASK;
+  uint8_t result = 0;
+  for (int i = 0; i < 4; i++) {
+    if (!hasExit(cell, i)) {
+      result |= (1 << i);
+    }
+  }
+  mOpenCloseMask = openCloseMask;
+  return result;
 }
 
-bool Maze::hasExit(uint16_t cell, uint8_t direction, uint8_t mazeType) const {
-  return (m_walls[cell] & (1 << (direction + mazeType))) == 0;
+bool Maze::hasExit(uint16_t cell, uint8_t direction) const {
+  uint8_t maskedWalls = xWalls[cell] & (mOpenCloseMask << direction);
+  return maskedWalls == 0;
 }
 
-bool Maze::hasOpenExit(uint16_t cell, uint8_t direction) const {
-  return hasExit(cell, direction, OPEN_MAZE);
-}
-
-bool Maze::hasClosedExit(uint16_t cell, uint8_t direction) const {
-  return hasExit(cell, direction, CLOSED_MAZE);
+bool Maze::hasRealExit(uint16_t cell, uint8_t direction) {
+  uint8_t maskedWalls = xWalls[cell] & (CLOSED_MASK << direction);
+  return maskedWalls == 0;
 }
 
 uint8_t Maze::direction(uint16_t cell) {
@@ -266,7 +309,22 @@ void Maze::setDirection(uint16_t cell, uint8_t direction) {
 }
 
 bool Maze::isVisited(uint16_t cell) {
-  return (openWalls(cell) == closedWalls(cell));
+  return (xWalls[cell] & ALL_UNSEEN) == 0;
+}
+
+bool Maze::isVisited(uint16_t cell, uint8_t direction) {
+  return (xWalls[cell] & WALL_UNSEEN << direction) == 0;
+}
+bool Maze::is_not_seen(uint16_t cell, uint8_t direction) {
+  return (xWalls[cell] & WALL_UNSEEN << direction) != 0;
+}
+
+void Maze::setVisited(uint16_t cell) {
+  xWalls[cell] &= ~ALL_UNSEEN;
+}
+
+void Maze::clearVisited(uint16_t cell) {
+  xWalls[cell] |= ALL_UNSEEN;
 }
 
 /*
@@ -275,26 +333,34 @@ bool Maze::isVisited(uint16_t cell) {
  * should only be used when setting up a maze.
  * To update the maze when running, use updateWalls(cell,wallData)
  */
-void Maze::setWallPresent(uint16_t cell, uint8_t direction) {
+void Maze::setWall(uint16_t cell, uint8_t direction) {
   uint16_t nextCell = neighbour(cell, direction);
   switch (direction) {
     case NORTH:
-      m_walls[cell] |= (1 << NORTH);
-      m_walls[nextCell] |= (1 << SOUTH);
+      xWalls[cell] &= ~UNSEEN_NORTH;
+      xWalls[cell] |= WALL_NORTH;
+      xWalls[nextCell] &= ~UNSEEN_SOUTH;
+      xWalls[nextCell] |= WALL_SOUTH;
       break;
     case EAST:
-      m_walls[cell] |= (1 << EAST);
-      m_walls[nextCell] |= (1 << WEST);
+      xWalls[cell] &= ~UNSEEN_EAST;
+      xWalls[cell] |= WALL_EAST;
+      xWalls[nextCell] &= ~UNSEEN_WEST;
+      xWalls[nextCell] |= WALL_WEST;
       break;
     case SOUTH:
-      m_walls[cell] |= (1 << SOUTH);
-      m_walls[nextCell] |= (1 << NORTH);
+      xWalls[cell] &= ~UNSEEN_SOUTH;
+      xWalls[cell] |= WALL_SOUTH;
+      xWalls[nextCell] &= ~UNSEEN_NORTH;
+      xWalls[nextCell] |= WALL_NORTH;
       break;
     case WEST:
-      m_walls[cell] |= (1 << WEST);
-      m_walls[nextCell] |= (1 << EAST);
+      xWalls[cell] &= ~UNSEEN_WEST;
+      xWalls[cell] |= WALL_WEST;
+      xWalls[nextCell] &= ~UNSEEN_EAST;
+      xWalls[nextCell] |= WALL_EAST;
       break;
-    default:;  // do nothing - although this is an error
+    default:;  // do nothing -although this is an error
       break;
   }
 }
@@ -305,27 +371,34 @@ void Maze::setWallPresent(uint16_t cell, uint8_t direction) {
  * normally used only when setting up a maze.
  * To update the maze when running, use updateMap(cell,wallData)
  */
-void Maze::setWallAbsent(uint16_t cell, uint8_t direction) {
+void Maze::clearWall(uint16_t cell, uint8_t direction) {
   uint16_t nextCell = neighbour(cell, direction);
   switch (direction) {
     case NORTH:
-      m_walls[cell] &= ~(1 << (NORTH + CLOSED_MAZE));
-      m_walls[nextCell] &= ~(1 << (SOUTH + CLOSED_MAZE));
-
+      xWalls[cell] &= ~UNSEEN_NORTH;
+      xWalls[cell] &= ~WALL_NORTH;
+      xWalls[nextCell] &= ~UNSEEN_SOUTH;
+      xWalls[nextCell] &= ~WALL_SOUTH;
       break;
     case EAST:
-      m_walls[cell] &= ~(1 << (EAST + CLOSED_MAZE));
-      m_walls[nextCell] &= ~(1 << (WEST + CLOSED_MAZE));
+      xWalls[cell] &= ~UNSEEN_EAST;
+      xWalls[cell] &= ~WALL_EAST;
+      xWalls[nextCell] &= ~UNSEEN_WEST;
+      xWalls[nextCell] &= ~WALL_WEST;
       break;
     case SOUTH:
-      m_walls[cell] &= ~(1 << (SOUTH + CLOSED_MAZE));
-      m_walls[nextCell] &= ~(1 << (NORTH + CLOSED_MAZE));
+      xWalls[cell] &= ~UNSEEN_SOUTH;
+      xWalls[cell] &= ~WALL_SOUTH;
+      xWalls[nextCell] &= ~UNSEEN_NORTH;
+      xWalls[nextCell] &= ~WALL_NORTH;
       break;
     case WEST:
-      m_walls[cell] &= ~(1 << (WEST + CLOSED_MAZE));
-      m_walls[nextCell] &= ~(1 << (EAST + CLOSED_MAZE));
+      xWalls[cell] &= ~UNSEEN_WEST;
+      xWalls[cell] &= ~WALL_WEST;
+      xWalls[nextCell] &= ~UNSEEN_EAST;
+      xWalls[nextCell] &= ~WALL_EAST;
       break;
-    default:;  // do nothing - although this is an error
+    default:;  // do nothing -although this is an error
       break;
   }
 }
@@ -336,25 +409,33 @@ void Maze::setWallAbsent(uint16_t cell, uint8_t direction) {
  *
  */
 void Maze::updateMap(uint16_t cell, uint8_t wallData) {
-  if (wallData & WALL_NORTH) {
-    setWallPresent(cell, NORTH);
-  } else {
-    setWallAbsent(cell, NORTH);
+  if (is_not_seen(cell, NORTH)) {
+    if (wallData & WALL_NORTH) {
+      setWall(cell, NORTH);
+    } else {
+      clearWall(cell, NORTH);
+    }
   }
-  if (wallData & WALL_EAST) {
-    setWallPresent(cell, EAST);
-  } else {
-    setWallAbsent(cell, EAST);
+  if (is_not_seen(cell, EAST)) {
+    if (wallData & WALL_EAST) {
+      setWall(cell, EAST);
+    } else {
+      clearWall(cell, EAST);
+    }
   }
-  if (wallData & WALL_SOUTH) {
-    setWallPresent(cell, SOUTH);
-  } else {
-    setWallAbsent(cell, SOUTH);
+  if (is_not_seen(cell, SOUTH)) {
+    if (wallData & WALL_SOUTH) {
+      setWall(cell, SOUTH);
+    } else {
+      clearWall(cell, SOUTH);
+    }
   }
-  if (wallData & WALL_WEST) {
-    setWallPresent(cell, WEST);
-  } else {
-    setWallAbsent(cell, WEST);
+  if (is_not_seen(cell, WEST)) {
+    if (wallData & WALL_WEST) {
+      setWall(cell, WEST);
+    } else {
+      clearWall(cell, WEST);
+    }
   }
 }
 
@@ -367,7 +448,7 @@ uint16_t Maze::cost(uint16_t cell) {
  * No account is taken of the 'wall seen' flag.
  */
 uint16_t Maze::costNorth(uint16_t cell) {
-  if (!hasOpenExit(cell, NORTH)) {
+  if (!hasExit(cell, NORTH)) {
     return MAX_COST;
   }
   cell = cellNorth(cell);
@@ -375,7 +456,7 @@ uint16_t Maze::costNorth(uint16_t cell) {
 }
 
 uint16_t Maze::costEast(uint16_t cell) {
-  if (hasOpenExit(cell, EAST)) {
+  if (hasExit(cell, EAST)) {
     cell = cellEast(cell);
     return mCost[cell];
   } else {
@@ -384,7 +465,7 @@ uint16_t Maze::costEast(uint16_t cell) {
 }
 
 uint16_t Maze::costSouth(uint16_t cell) {
-  if (hasOpenExit(cell, SOUTH)) {
+  if (hasExit(cell, SOUTH)) {
     cell = cellSouth(cell);
     return mCost[cell];
   } else {
@@ -393,7 +474,7 @@ uint16_t Maze::costSouth(uint16_t cell) {
 }
 
 uint16_t Maze::costWest(uint16_t cell) {
-  if (hasOpenExit(cell, WEST)) {
+  if (hasExit(cell, WEST)) {
     cell = cellWest(cell);
     return mCost[cell];
   } else {
@@ -427,103 +508,72 @@ void Maze::setCost(uint16_t cell, uint16_t cost) {
 }
 
 uint8_t Maze::directionToSmallest(uint16_t cell) {
-  auto smallestDirection = INVALID_DIRECTION;
-  uint16_t neighbourCost;
+  const uint8_t directions[] = {NORTH, EAST, SOUTH, WEST};
+  uint8_t smallestDirection = INVALID_DIRECTION;
   uint16_t smallestCost = MAX_COST;
-  neighbourCost = cost(cell, NORTH);
-  if (neighbourCost < smallestCost) {
-    smallestCost = neighbourCost;
-    smallestDirection = NORTH;
-  };
-  neighbourCost = cost(cell, EAST);
-  if (neighbourCost < smallestCost) {
-    smallestCost = neighbourCost;
-    smallestDirection = EAST;
-  };
-  neighbourCost = cost(cell, SOUTH);
-  if (neighbourCost < smallestCost) {
-    smallestCost = neighbourCost;
-    smallestDirection = SOUTH;
-  };
-  neighbourCost = cost(cell, WEST);
-  if (neighbourCost < smallestCost) {
-    smallestCost = neighbourCost;
-    smallestDirection = WEST;
-  };
-  if (smallestCost == MAX_COST) {
-    smallestDirection = INVALID_DIRECTION;
+  for (uint8_t dir : directions) {
+    uint16_t neighbourCost = cost(cell, dir);
+    if (neighbourCost < smallestCost) {
+      smallestCost = neighbourCost;
+      smallestDirection = dir;
+    }
   }
   return smallestDirection;
 }
 
-void Maze::updateDirections() {
-  for (uint16_t i = 0; i < numCells(); i++) {
-    mDirection[i] = directionToSmallest(i);
+uint8_t Maze::directionToSmallest(uint16_t cell, uint16_t target) {
+  const uint8_t directions[] = {NORTH, EAST, SOUTH, WEST};
+  uint8_t smallestDirection = INVALID_DIRECTION;
+  uint16_t smallestCost = MAX_COST;
+  uint16_t smallestChebyshev = MAX_COST;
+
+  for (uint8_t dir : directions) {
+    uint16_t neighbourCell = neighbour(cell, dir);
+    uint16_t neighbourCost = cost(cell, dir);
+    if (neighbourCost < smallestCost) {
+      smallestCost = neighbourCost;
+      smallestDirection = dir;
+      smallestChebyshev = chebyshevDistance(neighbourCell, target);
+    } else if (neighbourCost == smallestCost && smallestCost < MAX_COST) {
+      uint16_t cheb = chebyshevDistance(neighbourCell, target);
+      if (cheb < smallestChebyshev) {
+        smallestChebyshev = cheb;
+        smallestDirection = dir;
+      }
+    }
   }
+
+  return smallestDirection;
+}
+
+void Maze::updateDirections(const uint16_t target) {
+  for (uint16_t i = 0; i < numCells(); i++) {
+    if (mFloodType == MANHATTAN_FLOOD) {
+      mDirection[i] = directionToSmallest(i, target);
+    } else {
+      mDirection[i] = directionToSmallest(i);
+    }
+  }
+}
+
+uint16_t Maze::chebyshevDistance(uint16_t cell, uint16_t target) {
+  int dx = std::abs(col(cell) - col(target));
+  int dy = std::abs(row(cell) - row(target));
+  return static_cast<uint16_t>(std::max(dx, dy));
+}
+
+uint16_t Maze::manhattanDistance(uint16_t cell, uint16_t target) {
+  int dx = std::abs(col(cell) - col(target));
+  int dy = std::abs(row(cell) - row(target));
+  return static_cast<uint16_t>(dx + dy);
 }
 
 bool Maze::testForSolution() {  // takes less than 3ms
-
-  mPathCostClosed = flood(goal(), CLOSED_MAZE);
-
-  mPathCostOpen = flood(goal(), OPEN_MAZE);
+  mPathCostClosed = flood(goal(), CLOSED_MASK);
+  mPathCostOpen = flood(goal(), OPEN_MASK);
   mIsSolved = mPathCostClosed == mPathCostOpen;
   return mIsSolved;
 };
-
-/*
- *  The default goal while searching a classic maze
- *  the cell 0x77. This may not be the best finish
- *  cell on a speed run. Generally, it is best to
- *  finish on the other side of the goal area to the
- *  entrance.
- *  This method tries to work out where that will be.
- *  It takes no account of the possibil ty of multiple
- *  entrances but it is better than nothing
- *
- *  NOTE: Should this use the open or closed maze?
- */
-void Maze::recalculateGoal() {
-  uint16_t newGoal = goal();
-  // count the entrances
-  int entranceCount = 0;
-
-  if (hasClosedExit(0x77, SOUTH)) {
-    entranceCount++;
-    newGoal = 0x78;
-  };
-  if (hasClosedExit(0x77, WEST)) {
-    entranceCount++;
-    newGoal = 0x87;
-  };
-  if (hasClosedExit(0x78, WEST)) {
-    entranceCount++;
-    newGoal = 0x88;
-  };
-  if (hasClosedExit(0x78, NORTH)) {
-    entranceCount++;
-    newGoal = 0x77;
-  };
-  if (hasClosedExit(0x88, NORTH)) {
-    entranceCount++;
-    newGoal = 0x87;
-  };
-  if (hasClosedExit(0x88, EAST)) {
-    entranceCount++;
-    newGoal = 0x78;
-  };
-  if (hasClosedExit(0x87, EAST)) {
-    entranceCount++;
-    newGoal = 0x77;
-  };
-  if (hasClosedExit(0x87, SOUTH)) {
-    entranceCount++;
-    newGoal = 0x88;
-  };
-  if (entranceCount != 0) {
-    setGoal(newGoal);
-  }
-}
 
 int32_t Maze::costDifference() {
   return int32_t(mPathCostClosed) - int32_t(mPathCostOpen);
@@ -537,20 +587,21 @@ uint16_t Maze::closedMazeCost() const {
   return mPathCostClosed;
 }
 
-uint16_t Maze::flood(uint16_t target, uint8_t maze_type) {
+uint16_t Maze::flood(uint16_t target, int open_close_mask) {
+  mOpenCloseMask = open_close_mask;
   uint16_t cost = MAX_COST;
   switch (mFloodType) {
     case MANHATTAN_FLOOD:
-      cost = manhattanFlood(target, maze_type);
+      cost = manhattanFlood(target);
       break;
     case WEIGHTED_FLOOD:
-      cost = weightedFlood(target, maze_type);
+      cost = weightedFlood(target);
       break;
     case RUNLENGTH_FLOOD:
-      cost = runLengthFlood(target, maze_type);
+      cost = runLengthFlood(target);
       break;
     case DIRECTION_FLOOD:
-      cost = directionFlood(target, maze_type);
+      cost = directionFlood(target);
       break;
   }
   return cost;
@@ -579,19 +630,19 @@ static uint8_t getExitDirection[4][4] = {
 };
 
 /*
- *  TODO: Initialising the queue needs to be more clever.
+ * TODO: Initialising the queue needs to be more clever.
  * For each exit from the goal cell, seed the queue with the corresponding
  * neighbour. Note that single-cell goals may have multiple exits and the
  * centre region in the classic contest will also have a number of possible
  * exits
- * */
-uint16_t Maze::runLengthFlood(uint16_t target, uint8_t maze_type) {
+ */
+uint16_t Maze::runLengthFlood(uint16_t target) {
   PriorityQueue<FloodInfo> queue;
   initialiseFloodCosts(target);
   seedQueue(queue, target, orthoCostTable[1]);
   // each (accessible) cell will be processed only once
   while ((queue.size() > 0)) {
-    FloodInfo info = queue.head();
+    FloodInfo info = queue.fetchSmallest();
     /*
      * test each wall for an exit. Skip any blocked, or already used exits
      */
@@ -599,10 +650,13 @@ uint16_t Maze::runLengthFlood(uint16_t target, uint8_t maze_type) {
       if (exitWall == info.entryWall) {
         continue;
       }
-      if (!hasExit(info.cell, exitWall, maze_type)) {
+      if (!hasExit(info.cell, exitWall)) {
         continue;
       }
       uint16_t nextCell = neighbour(info.cell, exitWall);
+      if (mCost[nextCell] < MAX_COST) {
+        continue;
+      }
       uint8_t exitDir = getExitDirection[info.entryWall][exitWall];
       uint8_t newRunLength = info.runLength;
       int turnSize = abs(info.entryDir - exitDir);
@@ -619,58 +673,55 @@ uint16_t Maze::runLengthFlood(uint16_t target, uint8_t maze_type) {
       }
       uint16_t newCost = ((exitDir & 1) == 0) ? orthoCostTable[newRunLength] : diagCostTable[newRunLength];
       newCost += turnCost + mCost[info.cell];
-      if (newCost < mCost[nextCell]) {
-        mCost[nextCell] = newCost;
-        queue.push(FloodInfo(newCost, nextCell, newRunLength, exitDir, opposite(exitWall)));
-      }
+      mCost[nextCell] = newCost;
+      queue.add(FloodInfo(newCost, nextCell, newRunLength, exitDir, opposite(exitWall)));
     }
   }
-  // NOTE: this need not be done here - only when the directions are acually needed
-  updateDirections();
+  updateDirections(target);
   return mCost[0];
 }
 
-uint16_t Maze::manhattanFlood(uint16_t target, uint8_t maze_type) {
+uint16_t Maze::manhattanFlood(uint16_t target) {
   PriorityQueue<uint16_t> queue;
   initialiseFloodCosts(target);
-  queue.push(target);
+  queue.add(target);
   while (queue.size() > 0) {
     uint16_t cell = queue.head();
     uint16_t newCost = mCost[cell];
     newCost++;
     for (uint8_t direction = 0; direction < 4; direction++) {
-      if (hasExit(cell, direction, maze_type)) {
+      if (hasExit(cell, direction)) {
         uint16_t nextCell = neighbour(cell, direction);
         if (mCost[nextCell] > newCost) {
           mCost[nextCell] = newCost;
-          queue.push(nextCell);
+          queue.add(nextCell);
         }
       }
     }
   }
-  updateDirections();
+  updateDirections(target);
   return mCost[0];
 };
 
 void Maze::seedQueue(PriorityQueue<FloodInfo> &queue, uint16_t goal, uint16_t cost) {
-  if (hasOpenExit(goal, NORTH)) {
+  if (hasExit(goal, NORTH)) {
     uint16_t nextCell = cellNorth(goal);
-    queue.push(FloodInfo(cost, nextCell, 1, DIR_N, SOUTH));
+    queue.add(FloodInfo(cost, nextCell, 1, DIR_N, SOUTH));
     mCost[nextCell] = cost;
   }
-  if (hasOpenExit(goal, EAST)) {
+  if (hasExit(goal, EAST)) {
     uint16_t nextCell = cellEast(goal);
-    queue.push(FloodInfo(cost, nextCell, 1, DIR_E, WEST));
+    queue.add(FloodInfo(cost, nextCell, 1, DIR_E, WEST));
     mCost[nextCell] = cost;
   }
-  if (hasOpenExit(goal, SOUTH)) {
+  if (hasExit(goal, SOUTH)) {
     uint16_t nextCell = cellSouth(goal);
-    queue.push(FloodInfo(cost, nextCell, 1, DIR_S, NORTH));
+    queue.add(FloodInfo(cost, nextCell, 1, DIR_S, NORTH));
     mCost[nextCell] = cost;
   }
-  if (hasOpenExit(goal, WEST)) {
+  if (hasExit(goal, WEST)) {
     uint16_t nextCell = cellWest(goal);
-    queue.push(FloodInfo(cost, nextCell, 1, DIR_W, EAST));
+    queue.add(FloodInfo(cost, nextCell, 1, DIR_W, EAST));
     mCost[nextCell] = cost;
   }
 }
@@ -681,13 +732,13 @@ bool Maze::isSolved() {
 
 void Maze::save(uint8_t *data) {
   for (int i = 0; i < numCells(); i++) {
-    data[i] = m_walls[i];
+    data[i] = xWalls[i];
   }
 };
 
 void Maze::load(const uint8_t *data) {
   for (int i = 0; i < numCells(); i++) {
-    m_walls[i] = data[i];
+    xWalls[i] = data[i];
   }
 }
 
@@ -702,19 +753,19 @@ void Maze::initialiseFloodCosts(uint16_t target) {
   mDirection[target] = NORTH;
 }
 
-uint16_t Maze::weightedFlood(uint16_t target, uint8_t maze_type) {
+uint16_t Maze::weightedFlood(uint16_t target) {
   PriorityQueue<int> queue;
   const uint16_t aheadCost = 2;
 
   initialiseFloodCosts(target);
-  queue.push(target);
+  queue.add(target);
   while (queue.size() > 0) {
     uint16_t newCost;
     auto here = static_cast<uint16_t>(queue.head());
     uint16_t costHere = mCost[here];
     uint8_t thisDirection = mDirection[here];
     for (uint8_t exitDirection = 0; exitDirection < 4; exitDirection++) {
-      if (hasExit(here, exitDirection, maze_type)) {
+      if (hasExit(here, exitDirection)) {
         uint16_t nextCell = neighbour(here, exitDirection);
         if (thisDirection == exitDirection) {
           newCost = costHere + aheadCost;
@@ -724,12 +775,12 @@ uint16_t Maze::weightedFlood(uint16_t target, uint8_t maze_type) {
         if (mCost[nextCell] > newCost) {
           mCost[nextCell] = newCost;
           mDirection[nextCell] = exitDirection;
-          queue.push(nextCell);
+          queue.add(nextCell);
         }
       }
     }
   }
-  updateDirections();
+  updateDirections(target);
   return mCost[0];
 }
 
@@ -738,20 +789,20 @@ uint16_t Maze::weightedFlood(uint16_t target, uint8_t maze_type) {
  * so that  a test for a solution can be made
  */
 
-uint16_t Maze::directionFlood(uint16_t target, uint8_t maze_type) {
+uint16_t Maze::directionFlood(uint16_t target) {
   PriorityQueue<int> queue;
   initialiseFloodCosts(target);
-  queue.push(target);
+  queue.add(target);
   while (queue.size() > 0) {
     auto here = static_cast<uint16_t>(queue.head());
     auto nextCost = static_cast<uint16_t>(mCost[here] + 1);
     for (uint8_t exit = 0; exit < 4; exit++) {
-      if (hasExit(here, exit, maze_type)) {
+      if (hasExit(here, exit)) {
         uint16_t next = neighbour(here, exit);
         if (mDirection[next] == INVALID_DIRECTION) {
           mDirection[next] = behind(exit);
           mCost[next] = nextCost;
-          queue.push(next);
+          queue.add(next);
         }
       }
     }
@@ -777,8 +828,11 @@ Maze::FloodType Maze::getFloodType() const {
 
 void Maze::setWidth(uint16_t mWidth) {
   Maze::mWidth = mWidth;
-  clearData();
-  //  resetToEmptyMaze();
+  resetToEmptyMaze();
+}
+
+uint8_t Maze::getXWalls(int cell) const {
+  return xWalls[cell];
 }
 
 void Maze::clearGoalArea() {
@@ -789,35 +843,10 @@ void Maze::addToGoalArea(int cell) {
   goalArea.push_back(cell);
 }
 
-void Maze::addToGoalArea(int x, int y) {
-  goalArea.push_back(cellID(x, y));
-}
-
 bool Maze::goalContains(int cell) const {
-  return end(goalArea) != find(begin(goalArea), end(goalArea), cell);
-}
-
-bool Maze::goalContains(int x, int y) const {
-  int cell = cellID(x, y);
   return end(goalArea) != find(begin(goalArea), end(goalArea), cell);
 }
 
 int Maze::goalAreaSize() const {
   return goalArea.size();
-}
-
-void Maze::removeFromGoalArea(int x, int y) {
-  removeFromGoalArea(cellID(x, y));
-}
-
-void Maze::removeFromGoalArea(int cell) {
-  goalArea.remove(cell);
-}
-
-GoalArea_t Maze::getGoalArea() const {
-  return goalArea;
-}
-
-void Maze::setGoalArea(GoalArea_t &goalArea) {
-  this->goalArea = goalArea;
 }

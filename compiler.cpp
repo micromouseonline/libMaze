@@ -53,19 +53,19 @@ void makeDiagonalCommands(const char *src, const uint16_t maxLength, uint8_t *co
   while (state != PathFinish) {
     if (runLength > 31) {  // MAGIC: maximum for hald-size maze
       commands[0] = CMD_ERROR;
-      commands[1] = CMD_END;
+      commands[1] = CMD_STOP;
       break;
     }
     if (p >= maxLength) {
       commands[0] = CMD_ERROR;
-      commands[1] = CMD_END;
+      commands[1] = CMD_STOP;
       break;
     }
     char c = *src++;
     switch (state) {
       case PathInit:
         if (c == 'B') {
-          commands[p++] = (CMD_BEGIN);
+          // commands[p++] = (CMD_BEGIN);
           state = PathStart;
         } else {
           commands[p++] = (CMD_ERR_BEGIN);
@@ -293,12 +293,12 @@ void makeDiagonalCommands(const char *src, const uint16_t maxLength, uint8_t *co
         }
         break;
       case PathStop:
-        commands[p++] = (CMD_END);  // make sure the command list gets terminated
+        commands[p++] = (CMD_STOP);  // make sure the command list gets terminated
         state = PathFinish;
         break;
       case PathExit:
         commands[p++] = (CMD_EXPLORE);
-        commands[p++] = (CMD_END);  // make sure the command list gets terminated
+        commands[p++] = (CMD_STOP);  // make sure the command list gets terminated
         state = PathFinish;
         break;
       default:
@@ -322,12 +322,12 @@ void makeSmoothCommands(const char *src, const uint16_t maxLength, uint8_t *comm
   while (state != PathFinish) {
     if (runLength >= 31) {  // MAGIC: maximum for hald-size maze
       commands[p++] = CMD_ERROR;
-      commands[p] = CMD_END;
+      commands[p] = CMD_STOP;
       break;
     }
     if (p >= maxLength) {
       commands[0] = CMD_ERROR;
-      commands[1] = CMD_END;
+      commands[1] = CMD_STOP;
       break;
     }
 
@@ -335,7 +335,7 @@ void makeSmoothCommands(const char *src, const uint16_t maxLength, uint8_t *comm
     switch (state) {
       case PathInit:
         if (c == 'B') {
-          commands[p++] = (CMD_BEGIN);
+          // commands[p++] = (CMD_BEGIN);
           state = PathStart;
         } else {
           commands[p++] = (CMD_ERR_BEGIN);
@@ -434,12 +434,12 @@ void makeSmoothCommands(const char *src, const uint16_t maxLength, uint8_t *comm
         }
         break;
       case PathStop:
-        commands[p] = (CMD_END);  // make sure the command list gets terminated
+        commands[p] = (CMD_STOP);  // make sure the command list gets terminated
         state = PathFinish;
         break;
       case PathExit:
         commands[p++] = (CMD_EXPLORE);
-        commands[p] = (CMD_END);  // make sure the command list gets terminated
+        commands[p] = (CMD_STOP);  // make sure the command list gets terminated
         state = PathFinish;
         break;
       default:
@@ -456,20 +456,20 @@ void makeSmoothCommands(const char *src, const uint16_t maxLength, uint8_t *comm
 void makeInPlaceCommands(const char *src, const uint16_t maxLength, uint8_t *commands) {
   int p = 0;
   int runLength = 0;
-  unsigned char cmd = CMD_END;
+  unsigned char cmd = CMD_STOP;
   bool finished = false;
   assert(maxLength >= 2);
   while (!finished) {
     if (p >= maxLength) {
       commands[0] = CMD_ERROR;
-      commands[1] = CMD_END;
+      commands[1] = CMD_STOP;
       break;
     }
     char c = *src++;
 
     switch (c) {
       case 'B':
-        commands[p++] = CMD_BEGIN;
+        // commands[p++] = CMD_BEGIN;
         cmd = FWD0;
         runLength = 0;
         break;
@@ -478,7 +478,7 @@ void makeInPlaceCommands(const char *src, const uint16_t maxLength, uint8_t *com
         runLength++;
         if (runLength >= 31) {  // MAGIC: maximum for hald-size maze
           commands[p++] = CMD_ERROR;
-          commands[p] = CMD_END;
+          commands[p] = CMD_STOP;
           finished = true;
         }
         break;
@@ -494,18 +494,18 @@ void makeInPlaceCommands(const char *src, const uint16_t maxLength, uint8_t *com
         break;
       case 'S':
         commands[p++] = cmd;
-        commands[p++] = CMD_END;
+        commands[p++] = CMD_STOP;
         finished = true;
         break;
       case 'X':
         commands[p++] = cmd;
         commands[p++] = CMD_EXPLORE;
-        commands[p] = CMD_END;
+        commands[p] = CMD_STOP;
         finished = true;
         break;
       default:
         commands[p++] = CMD_ERROR;
-        commands[p] = CMD_END;
+        commands[p] = CMD_STOP;
         finished = true;
         break;
     }

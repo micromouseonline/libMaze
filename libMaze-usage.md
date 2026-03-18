@@ -3,7 +3,7 @@
 This document describes how this library is versioned, how to include it in your projects, and how to contribute changes back.
 
 ---
- 
+
 ## Overview
 
 This is a pure C/C++ library designed for use in both native (Linux/Windows) and embedded/cross-compiled projects. It is distributed as source code and is intended to be embedded directly into consuming projects using `git subtree`. No package manager is required.

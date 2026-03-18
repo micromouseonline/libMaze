@@ -28,13 +28,15 @@
 
 #include <cstdint>
 
+const uint8_t DEFAULT_GOAL = 0x77;
+const uint8_t TRAINING_GOAL = 0x11;
 const uint16_t MAX_COST = UINT16_MAX;
 
 #define NORTH (uint8_t)0x00
 #define EAST (uint8_t)0x01
 #define SOUTH (uint8_t)0x02
 #define WEST (uint8_t)0x03
-#define INVALID_DIRECTION (uint8_t)0xFF
+#define INVALID_DIRECTION (uint8_t)255
 
 enum {
   DIR_N = 0,
@@ -48,13 +50,20 @@ enum {
 };
 
 #define WALL_PRESENT 0x01
-
-const uint8_t OPEN_MAZE = 0;
-const uint8_t CLOSED_MAZE = 4;
+#define WALL_UNSEEN 0x10
+#define ALL_UNSEEN 0xF0
 
 #define WALL_NORTH (WALL_PRESENT << (NORTH))
 #define WALL_EAST (WALL_PRESENT << (EAST))
 #define WALL_SOUTH (WALL_PRESENT << (SOUTH))
 #define WALL_WEST (WALL_PRESENT << (WEST))
+
+#define UNSEEN_NORTH (WALL_UNSEEN << (NORTH))
+#define UNSEEN_EAST (WALL_UNSEEN << (EAST))
+#define UNSEEN_SOUTH (WALL_UNSEEN << (SOUTH))
+#define UNSEEN_WEST (WALL_UNSEEN << (WEST))
+
+#define CLOSED_MASK 0x11
+#define OPEN_MASK 0x01
 
 #endif  // MAZE_MAZECONSTANTS_H

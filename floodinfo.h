@@ -47,7 +47,7 @@ class FloodInfo {
     // no action needed
   }
 
-  inline bool operator==(FloodInfo a) const {
+  inline bool operator==(FloodInfo a) {
     if (a.runLength == runLength && a.cell == cell && a.cost == cost && a.entryDir == entryDir) {
       return true;
     } else {
@@ -55,15 +55,15 @@ class FloodInfo {
     }
   }
 
-  inline bool operator!=(FloodInfo &rhs) const { return !(*this == rhs); }
+  inline bool operator!=(FloodInfo &rhs) { return !(*this == rhs); }
 
-  inline bool operator>(FloodInfo a) const { return cost > a.cost; }
+  inline bool operator>(FloodInfo a) { return cost > a.cost; }
 
-  inline bool operator<(FloodInfo a) const { return cost < a.cost; }
+  inline bool operator<(FloodInfo a) { return cost < a.cost; }
 
-  inline bool operator>=(FloodInfo a) const { return cost >= a.cost; }
+  inline bool operator>=(FloodInfo a) { return cost >= a.cost; }
 
-  inline bool operator<=(FloodInfo a) const { return cost <= a.cost; }
+  inline bool operator<=(FloodInfo a) { return cost <= a.cost; }
 
-  inline bool isNull() const { return (runLength == 0 && cell == 0 && cost == 0); }
+  inline bool isNull() { return (runLength == 0 && cell == 0 && cost == 0); }
 };

@@ -24,7 +24,6 @@
  ************************************************************************/
 
 #include "mazepathfinder.h"
-#include <math.h>
 #include <cstdio>
 #include <cstring>
 
@@ -69,7 +68,8 @@ PathFinder::PathFinder()
       mStartCell(0),
       mEndCell(0),
       mDistance(0),
-      mReachesTarget(false) {
+      mReachesTarget(false),
+      mStopAtUnvisited(true) {
   memset(mBuffer, 0, 1024);
 }
 
@@ -81,11 +81,21 @@ char *PathFinder::path() {
 
 static char pathOptions[16] = {'F', 'R', 'A', 'L', 'L', 'F', 'R', 'A', 'A', 'L', 'F', 'R', 'R', 'A', 'L', 'F'};
 
+void PathFinder::generateSafePath(const uint16_t start, const uint16_t target, Maze *maze) {
+  mStopAtUnvisited = true;
+  generatePath(start, target, maze);
+}
+
+void PathFinder::generateUnsafePath(const uint16_t start, const uint16_t target, Maze *maze) {
+  mStopAtUnvisited = false;
+  generatePath(start, target, maze);
+}
+
 void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze *maze) {
   char *pPath = mBuffer;
   uint16_t distance = 0;
   uint16_t here = start;
-  uint8_t headingHere = maze->directionToSmallest(here);
+  uint8_t headingHere = maze->direction(here);
   mStartCell = start;
   mEndCell = target;
   mStartHeading = headingHere;
@@ -99,13 +109,14 @@ void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze 
   }
   char lastTurn = 'F';
   while (here != target) {
-    if (not maze->isVisited(here)) {
+    if (mStopAtUnvisited && !maze->isVisited(here)) {
       break;
     }
     if (mCellCount >= MAX_PATH_LENGTH) {
       break;
     }
     uint8_t headingLast = headingHere;
+    //    headingHere = maze->direction(here);
     char command = pathOptions[headingLast * 4 + headingHere];
     uint16_t smallest = maze->cost(here);
     uint16_t nextCost;
@@ -164,16 +175,15 @@ void PathFinder::generatePath(const uint16_t start, const uint16_t target, Maze 
     if (command == 'R') {
       headingHere = Maze::rightOf(headingHere);
       mEndHeading = Maze::rightOf(mEndHeading);
-      distance += (180 * 16 / maze->width()) / sqrtf(2);
+      distance += 127;
     }
     if (command == 'L') {
       headingHere = Maze::leftOf(headingHere);
       mEndHeading = Maze::leftOf(mEndHeading);
-      distance += (180 * 16 / maze->width()) / sqrtf(2);
-      ;
+      distance += 127;
     }
     if (command == 'F') {
-      distance += (180 * 16 / maze->width());
+      distance += 180;
     }
     *pPath++ = command;
     mCellCount++;
@@ -239,15 +249,15 @@ void PathFinder::listCommands(uint8_t *commands) {
       done = 1;
     } else if (command == CMD_BEGIN) {
       printf("%s, ", "CMD_BEGIN");
-    } else if (isOrtho(command)) {
-      printf("FWD%d, ", getMoveLength(command));
-    } else if (isDiagonal(command)) {
-      printf("DIA%d, ", getMoveLength(command));
+    } else if (command <= FWD31) {
+      printf("FWD%d, ", command - FWD0);
+    } else if (command <= DIA31) {
+      printf("DIA%d, ", command - DIA0);
     } else if (command <= IP180L) {
       printf("%s, ", inPlaceTurnNames[getTurnIndex(command)]);
     } else if (command <= SS90EL) {
       printf("%s, ", smoothTurnNames[getTurnIndex(command)]);
-    } else if (isErrorMssg(command)) {
+    } else if (command >= 0xF0) {
       printf("CMD_ERROR_%02d, ", command - 0xF0);
     } else {
       printf("OTHER - %02x\n", command);

@@ -26,13 +26,13 @@
 #include "mazeprinter.h"
 #include <cstdio>
 
-static char dirChars[] = "^>v<#  ";
+static char dirChars[] = "^>v<  ";
 
 void printNorthWalls(Maze *maze, uint16_t row) {
   for (uint16_t col = 0; col < maze->width(); col++) {
     uint16_t cell = row + maze->width() * col;
     printf("o");
-    if (maze->hasOpenExit(cell, NORTH)) {
+    if (maze->hasExit(cell, NORTH)) {
       printf("   ");
     } else {
       printf("---");
@@ -45,7 +45,7 @@ void printSouthWalls(Maze *maze, uint16_t row) {
   for (uint16_t col = 0; col < maze->width(); col++) {
     uint16_t cell = row + maze->width() * col;
     printf("o");
-    if (maze->hasOpenExit(cell, SOUTH)) {
+    if (maze->hasExit(cell, SOUTH)) {
       printf("   ");
     } else {
       printf("---");
@@ -60,20 +60,23 @@ void MazePrinter::printDirs(Maze *maze) {
     printNorthWalls(maze, row);
     for (uint16_t col = 0; col < maze->width(); col++) {
       uint16_t cell = row + maze->width() * col;
-      if (maze->hasOpenExit(cell, WEST)) {
+      if (maze->hasExit(cell, WEST)) {
         printf(" ");
       } else {
         printf("|");
       }
-      uint8_t direction = maze->directionToSmallest(cell);
-      char c = dirChars[direction];
+      uint8_t direction = maze->direction(cell);
+      char c = ' ';
+      if (direction <= WEST) {
+        c = dirChars[direction];
+      }
       if (cell == maze->goal()) {
         c = '*';
       }
       printf(" %c ", c);
     }
     uint16_t cell = row + maze->width() * (maze->width() - 1);
-    if (maze->hasOpenExit(cell, EAST)) {
+    if (maze->hasExit(cell, EAST)) {
       printf(" ");
     } else {
       printf("|");
@@ -89,14 +92,14 @@ void MazePrinter::printVisitedDirs(Maze *maze) {
     printNorthWalls(maze, row);
     for (uint16_t col = 0; col < maze->width(); col++) {
       uint16_t cell = row + maze->width() * col;
-      if (maze->hasOpenExit(cell, WEST)) {
+      if (maze->hasExit(cell, WEST)) {
         printf(" ");
       } else {
         printf("|");
       }
-      uint8_t direction = maze->directionToSmallest(cell);
+      uint8_t direction = maze->direction(cell);
       char c = ' ';
-      if (maze->isVisited(cell)) {
+      if (maze->isVisited(cell) && direction <= WEST) {
         c = dirChars[direction];
       }
       if (cell == maze->goal()) {
@@ -105,7 +108,7 @@ void MazePrinter::printVisitedDirs(Maze *maze) {
       printf(" %c ", c);
     }
     uint16_t cell = row + maze->width() * (maze->width() - 1);
-    if (maze->hasOpenExit(cell, EAST)) {
+    if (maze->hasExit(cell, EAST)) {
       printf(" ");
     } else {
       printf("|");
@@ -122,7 +125,7 @@ void MazePrinter::printPlain(Maze *maze) {
     /* TODO:  this is all rather messy */
     for (uint16_t col = 0; col < maze->width(); col++) {
       uint16_t cell = row + maze->width() * col;
-      if (maze->hasOpenExit(cell, WEST)) {
+      if (maze->hasExit(cell, WEST)) {
         printf(" ");
       } else {
         printf("|");
@@ -137,7 +140,7 @@ void MazePrinter::printPlain(Maze *maze) {
       printf(" %c ", c);
     }
     uint16_t cell = row + maze->width() * (maze->width() - 1);
-    if (maze->hasOpenExit(cell, EAST)) {
+    if (maze->hasExit(cell, EAST)) {
       printf(" ");
     } else {
       printf("|");
@@ -185,7 +188,7 @@ void MazePrinter::printCosts(Maze *maze) {
     /* TODO:  this is all rather messy */
     for (uint16_t col = 0; col < maze->width(); col++) {
       uint16_t cell = row + maze->width() * col;
-      if (maze->hasOpenExit(cell, WEST)) {
+      if (maze->hasExit(cell, WEST)) {
         printf(" ");
       } else {
         printf("|");
@@ -198,7 +201,7 @@ void MazePrinter::printCosts(Maze *maze) {
       }
     }
     uint16_t cell = row + maze->width() * (maze->width() - 1);
-    if (maze->hasOpenExit(cell, EAST)) {
+    if (maze->hasExit(cell, EAST)) {
       printf(" ");
     } else {
       printf("|");

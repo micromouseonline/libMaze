@@ -29,6 +29,8 @@
 #include <cassert>
 #include <cstdint>
 
+// #include "floodinfo.h"
+
 template <class item_t>
 class PriorityQueue {
  public:
@@ -52,7 +54,12 @@ class PriorityQueue {
 
   int size() { return mItemCount; }
 
-  bool empty() { return size() == 0; }
+  void increment(int &ptr) {
+    ++ptr;
+    if (ptr > MAX_ITEMS) {
+      ptr -= MAX_ITEMS;
+    }
+  }
 
   void clear() {
     mHead = 0;
@@ -63,7 +70,7 @@ class PriorityQueue {
   /*
    * Adds an item to the tail of the queue
    */
-  void push(item_t item) {
+  void add(item_t item) {
     assert(mItemCount < MAX_ITEMS);
     mData[mTail] = item;
     increment(mTail);
@@ -82,21 +89,6 @@ class PriorityQueue {
   }
 
   /*
-   * remove the item at the head of the queue.
-   * Provided only for compatibility with std::priority_queue
-   */
-  void pop() {
-    increment(mHead);
-    --mItemCount;
-  }
-
-  /*
-   * return a reference to the item at the front of the queue. Using only this method
-   * allows use of the queue as a simple LIFO structure
-   */
-  item_t &front() { return mData[mHead]; }
-
-  /*
    * Search from the head of the queue towards the tail
    * return the smallest item in the queue
    * If two items are equally small, return the one that
@@ -108,11 +100,13 @@ class PriorityQueue {
     assert(mItemCount > 0);
     int posSmallest = mHead;
     int index = mHead;
-    while (index != mTail) {
+    int remaining = mItemCount;
+    while (remaining > 0) {
       if (mData[index] < mData[posSmallest]) {
         posSmallest = index;
       }
       increment(index);
+      --remaining;
     }
     item_t smallest = mData[posSmallest];
     mData[posSmallest] = mData[mHead];
@@ -121,13 +115,6 @@ class PriorityQueue {
   }
 
  protected:
-  void increment(int &ptr) {
-    ++ptr;
-    if (ptr > MAX_ITEMS) {
-      ptr -= MAX_ITEMS;
-    }
-  }
-
   item_t *mData;
   const int MAX_ITEMS;
   int mHead;
