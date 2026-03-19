@@ -25,6 +25,7 @@
  **************************************************************************/
 
 #include "mazefiler.h"
+#include "mazeconstants.h"
 #include <cstring>
 
 MazeFiler::MazeFiler() = default;
@@ -105,11 +106,13 @@ int MazeFiler::readBinaryMaze(FILE *fp, Maze *maze) {
     return MAZE_READ_ERROR;
   }
   if (bytesRead < 1024) {
-    // assume classic maze
+    // assume classic 16x16 maze
+    maze->setWidth(16);
     maze->copyMazeFromFileData(buffer, 256);
     return MAZE_SUCCESS;
   }
-  // then assume it is a half-size maze
+  // assume 32x32 maze
+  maze->setWidth(32);
   maze->copyMazeFromFileData(buffer, 1024);
   return MAZE_SUCCESS;
 }
@@ -176,12 +179,12 @@ int MazeFiler::readTextMaze(FILE *fp, Maze *maze) {
     return MAZE_READ_ERROR;
   }
   // now we just assume the rest of the file makes sense
-  // go back to the start
-  rewind(fp);
-  maze->clearData();
-  // and begin parsing lines
-  // a text maze starts top left and every row takes up two lines of text
+  // detect width from post count and initialise the maze
   int mazeWidth = lineLength / charsPerCell;
+  maze->setWidth(mazeWidth);
+  // go back to the start and begin parsing
+  // a text maze starts top left and every row takes up two lines of text
+  rewind(fp);
   row = mazeWidth - 1;
   while (row >= 0) {
     result = fgets(line1, 300, fp); /* north walls */
@@ -209,6 +212,18 @@ int MazeFiler::readTextMaze(FILE *fp, Maze *maze) {
       }
     }
     row--;
+  }
+  // Clear unseen bits for all cells after parsing
+  // This ensures hasExit() works correctly with CLOSED_MASK
+  for (uint16_t cell = 0; cell < maze->numCells(); cell++) {
+    for (uint8_t dir = 0; dir < 4; dir++) {
+      if (maze->walls(cell) & (WALL_PRESENT << dir)) {
+        // Wall is set, unseen bit should already be cleared by setWall
+      } else {
+        // No wall, explicitly clear it and its unseen bit
+        maze->clearWall(cell, dir);
+      }
+    }
   }
   // nasty hack for classic mazes with no explicit goal
   if (maze->goalAreaSize() == 0) {
