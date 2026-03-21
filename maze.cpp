@@ -843,6 +843,15 @@ void Maze::addToGoalArea(int cell) {
   goalArea.push_back(cell);
 }
 
+/***
+ * Remove a cell from the goal area. If the cell is not in the goal area, this
+ * has no effect. The goal area may become empty.
+ * @param cell the cell to remove
+ */
+void Maze::removeFromGoalArea(int cell) {
+  goalArea.remove(cell);
+}
+
 bool Maze::goalContains(int cell) const {
   return end(goalArea) != find(begin(goalArea), end(goalArea), cell);
 }

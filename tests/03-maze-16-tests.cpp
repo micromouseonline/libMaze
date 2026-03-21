@@ -467,6 +467,53 @@ TEST_F(TEST_03_Maze_16, 89_ClearAndAddGoalArea) {
   EXPECT_TRUE(maze.goalContains(20));
 }
 
+TEST_F(TEST_03_Maze_16, 89a_RemoveFromGoalAreaReducesSize) {
+  maze.clearGoalArea();
+  maze.addToGoalArea(10);
+  maze.addToGoalArea(20);
+  maze.addToGoalArea(30);
+  ASSERT_EQ(3, maze.goalAreaSize());
+
+  maze.removeFromGoalArea(20);
+  EXPECT_EQ(2, maze.goalAreaSize());
+  EXPECT_TRUE(maze.goalContains(10));
+  EXPECT_FALSE(maze.goalContains(20));
+  EXPECT_TRUE(maze.goalContains(30));
+}
+
+TEST_F(TEST_03_Maze_16, 89b_RemoveAllFromGoalAreaMakesEmpty) {
+  maze.clearGoalArea();
+  maze.addToGoalArea(10);
+  maze.addToGoalArea(20);
+  ASSERT_EQ(2, maze.goalAreaSize());
+
+  maze.removeFromGoalArea(10);
+  EXPECT_EQ(1, maze.goalAreaSize());
+  maze.removeFromGoalArea(20);
+  EXPECT_EQ(0, maze.goalAreaSize());
+}
+
+TEST_F(TEST_03_Maze_16, 89c_RemoveNonexistentCellIsNoOp) {
+  maze.clearGoalArea();
+  maze.addToGoalArea(10);
+  maze.addToGoalArea(20);
+  ASSERT_EQ(2, maze.goalAreaSize());
+
+  // Remove a cell that doesn't exist
+  maze.removeFromGoalArea(100);
+  EXPECT_EQ(2, maze.goalAreaSize());
+  EXPECT_TRUE(maze.goalContains(10));
+  EXPECT_TRUE(maze.goalContains(20));
+}
+
+TEST_F(TEST_03_Maze_16, 89d_RemoveFromEmptyGoalAreaIsNoOp) {
+  maze.clearGoalArea();
+  ASSERT_EQ(0, maze.goalAreaSize());
+
+  maze.removeFromGoalArea(10);
+  EXPECT_EQ(0, maze.goalAreaSize());
+}
+
 // ---------------------------------------------------------------------------
 // 90: Direction update and path following
 // ---------------------------------------------------------------------------

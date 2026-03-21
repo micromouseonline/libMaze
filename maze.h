@@ -227,6 +227,7 @@ class Maze {
   void setWidth(uint16_t mWidth);
   void clearGoalArea();
   void addToGoalArea(int cell);
+  void removeFromGoalArea(int cell);
   bool goalContains(int cell) const;
   int goalAreaSize() const;
 

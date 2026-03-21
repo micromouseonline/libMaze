@@ -39,3 +39,8 @@ add_library(maze
         ${SOURCE_FILES}
         ${HEADER_FILES}
         )
+
+# Allow parent project to control via -DENABLE_MAZE_DATA or set() before add_subdirectory
+if(ENABLE_MAZE_DATA)
+  target_compile_definitions(maze PUBLIC ENABLE_MAZE_DATA)
+endif()

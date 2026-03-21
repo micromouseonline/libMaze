@@ -112,6 +112,21 @@ Then, in the library repository, review the change, tag a new release, and pull 
 
 **Important:** avoid making the same fix in multiple projects without first consolidating it back into the library. Divergent fixes across projects are difficult to reconcile.
 
+### Updating your project after a library fix
+
+Once a fix has been released in the library with a new version tag, update your project to pull in the changes:
+
+```bash
+git subtree pull --prefix=libs/mylib mylib v1.2.1 --squash
+```
+
+Replace `v1.2.1` with the new version tag and `libs/mylib` with your actual library path. This creates a single new squash commit in your project recording the updated library version.
+
+Check the `VERSION` file to confirm the update succeeded:
+```bash
+cat libs/mylib/VERSION
+```
+
 ---
 
 ## Tests

@@ -11,6 +11,12 @@ The current version number should be visible in the file VERSION
 ## [Unreleased]
 - Nothing yet
 
+## [3.2.0] - 2026-03-21
+
+### Added
+- `removeFromGoalArea(int cell)` method to remove cells from the goal area.
+  The goal area may become empty after removal.
+
 ## [3.1.0] - 2026-03-19
 
 ### Changed
@@ -30,6 +36,7 @@ The current version number should be visible in the file VERSION
  - Google Test suite for the entire library
  - This release is the code used in Decimus 5A, spring 2026
 
-[Unreleased]: https://github.com/micromouseonline/libMaze/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/micromouseonline/libMaze/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/micromouseonline/libMaze/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/micromouseonline/libMaze/releases/tag/v3.1.0
 [3.0.0]: https://github.com/micromouseonline/libMaze/releases/tag/v3.0.0
